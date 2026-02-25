@@ -1,0 +1,82 @@
+<!-- MOST of this code was written last yeart, with small minor changes throughout this year -->
+
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <title>Game</title>
+        <meta charset="UTF-8">
+        <meta name="description" content="12COMP P5.play">
+        <meta name="keywords" content="12COMP, P5.play">
+        <meta name="author" content="Mr Britton">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- P5.js & P5.play *****************************-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.8.0/p5.js" integrity="sha512-bzpp8klYroR6PFgL3RJ+VkvY5hJna7Zd38OA56peUDHSNQpSiN9lDQVnMYtcw7hoAVhbR6mAOdH+ymzg1o+G0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.8.0/addons/p5.sound.js" integrity="sha512-TU9AWtV5uUZPX8dbBAH8NQF1tSdigPRRT82vllAQ1Ke28puiqLA6ZVKxtUGlgrH6yWFnkKy+sE6luNEGH9ar0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://p5play.org/v3/planck.min.js"></script>
+        <script src="https://p5play.org/v3/p5play.js"></script>
+
+        <link rel="stylesheet" href="./style.css">
+    </head>
+    
+
+    <body>
+        <script type = "module" src="./gamePageScript.mjs"></script>
+
+        <header class = 'flexBox'>
+            <a class = "BackButton" href = "index.html">Return to Main</a>
+
+            <h1></h1>
+        </header>
+
+        
+        <div id = 'horizontalContainer'>
+            
+            <div class = 'gameDataContainer'>
+                <div id = "Leaderboard">
+                    <h2>Global Leaderboard</h2>
+                    <ol>
+                        <li class = 'leaderboardEntry'> <span class = 'leaderboardUsername'> </span> <span class = "leaderboardScoreNumber"></span> </li>
+                        <li class = 'leaderboardEntry'> <span class = 'leaderboardUsername'> </span> <span class = "leaderboardScoreNumber"></span> </li>
+                        <li class = 'leaderboardEntry'> <span class = 'leaderboardUsername'> </span> <span class = "leaderboardScoreNumber"></span> </li>
+                        <li class = 'leaderboardEntry'> <span class = 'leaderboardUsername'> </span> <span class = "leaderboardScoreNumber"></span> </li>
+                        <li class = 'leaderboardEntry'> <span class = 'leaderboardUsername'> </span> <span class = "leaderboardScoreNumber"></span> </li>
+                        <li class = 'leaderboardEntry'> <span class = 'leaderboardUsername'> </span> <span class = "leaderboardScoreNumber"></span> </li>
+                        <li class = 'leaderboardEntry'> <span class = 'leaderboardUsername'> </span> <span class = "leaderboardScoreNumber"></span> </li>
+                        <li class = 'leaderboardEntry'> <span class = 'leaderboardUsername'> </span> <span class = "leaderboardScoreNumber"></span> </li>
+                        <li class = 'leaderboardEntry'> <span class = 'leaderboardUsername'> </span> <span class = "leaderboardScoreNumber"></span> </li>
+                        <li class = 'leaderboardEntry'> <span class = 'leaderboardUsername'> </span> <span class = "leaderboardScoreNumber"></span> </li>
+                    </ol>
+                </div>
+
+                <div id = "loginScreen">
+                    <p id = "loginStatus">Log in to save your score!</p>
+                    
+                    
+                    <h2 style = "display: none;">Current high score:</h2>
+                    <p style = "display: none;" id = "currentScore">15</p>
+
+                    <button id = "LogButton" style = "display: block;" onclick = logChange()>Log in</button>
+                </div>
+            </div>
+
+        </div>
+        
+        
+        <!-- Create a script tag and load in the game from the folder -->
+        <script>
+            const game = sessionStorage.getItem('game');
+            if (game != null) {
+                const script = document.createElement('script');
+                script.src = 'Games/' + game + '/' + game + '.js';
+                
+                document.head.appendChild(script);
+                
+                console.log("Successfully added game tag");
+            } else {
+                console.log("No game in session storage");
+            }
+        </script>
+    </body>
+</html>
