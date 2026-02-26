@@ -23,13 +23,14 @@ var fb_db;
 
 function fb_initialise() {
     const FB_GAMECONFIG = {
-        apiKey: "AIzaSyCwPcoDMGchHrJSuN_CWiQciiIJcnhYJVE",
-        authDomain: "comp-2025-wilfred-leices-a7207.firebaseapp.com",
-        databaseURL: "https://comp-2025-wilfred-leices-a7207-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "comp-2025-wilfred-leices-a7207",
-        storageBucket: "comp-2025-wilfred-leices-a7207.firebasestorage.app",
-        messagingSenderId: "155933616174",
-        appId: "1:155933616174:web:78589529167648f04f97bf"
+        apiKey: "AIzaSyAPgOrTqFKRwGkedGxXf68FSJQgfErC3Ro",
+        authDomain: "comp-2026-wilfred-leicester.firebaseapp.com",
+        databaseURL: "https://comp-2026-wilfred-leicester-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "comp-2026-wilfred-leicester",
+        storageBucket: "comp-2026-wilfred-leicester.firebasestorage.app",
+        messagingSenderId: "668140603656",
+        appId: "1:668140603656:web:97049f339dac9f098e04bd",
+        measurementId: "G-K9EZVKP8GE"
     };
 
     fb_db = getDatabase(initializeApp(FB_GAMECONFIG));

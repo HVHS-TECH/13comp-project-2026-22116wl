@@ -2,7 +2,15 @@ var currentGame = sessionStorage.getItem('game');
 console.log(currentGame);
 
 const metaData = await import(`./Games/${currentGame}/gameMetaData.mjs`);
+
 document.querySelector("h1").innerHTML = metaData.gameName;
+
+console.log(metaData);
+if (metaData.bg == 1) {
+    document.getElementById('gameSpace').style.backgroundColor = "black";
+} else {
+    document.getElementById('gameSpace').style.backgroundColor = "white";
+}
 
 import { fb_initialise, fb_authenticate, fb_readSorted, fb_read, fb_write, fb_valChanged, changeLog } from "./fb.mjs";
 window.fb_authenticate = fb_authenticate;
@@ -16,8 +24,8 @@ const observer = new MutationObserver((mutationsList) => {
     for (const mutation of mutationsList) {
         for (const element of mutation.addedNodes) {
             //if element is the p5 play canvas
-            if (element.className == "p5-fullscreen") {
-                document.getElementById('horizontalContainer').appendChild(element);
+            if (element.className == "p5-maxed") {
+                document.getElementById('gameSpace').appendChild(element);
 
                 //disconnect function after canvas added
                 observer.disconnect();

@@ -5,6 +5,8 @@ console.log('script connected');
 
 import { fb_initialise, fb_authenticate, fb_logout, fb_read, fb_write, fb_update, fb_readSorted, fb_delete, changeName, changeLog, fb_getAuthData } from './fb.mjs';
 
+if 
+
 
 async function updateStatus() {
 	if (sessionStorage.getItem('UID') != null) {
@@ -33,7 +35,6 @@ async function updateStatus() {
 	}
 }
 
-updateStatus();
 
 window.fb_initialise = fb_initialise;
 window.fb_authenticate = fb_authenticate;
@@ -74,5 +75,11 @@ async function logChange() {
 	updateStatus();
 }
 
+function showSettings() {
+    const panel = document.querySelector('.AccountSettingsPanel')
+    panel.style.right = "0px";
+}
+
+window.showSettings = showSettings;
 window.logChange = logChange;
 window.changeDisplayName = changeDisplayName;

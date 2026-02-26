@@ -9,9 +9,32 @@
     border-radius:  100%;
     border: 1px solid black;
 
+	padding: 0px;
+
     background-color: lightgray;
 }
 
+.AccountSettings img {
+	border-radius: 100%;
+	width: 100%;
+	height: 100%;
+}
+
+.AccountSettings:hover {
+	background-color: gray;
+}
+
+
+.AccountSettingsPanel {
+	transform-origin: 100% 0%;
+	width: 400px;
+	height: calc(100vh - 81px);
+	z-index: 10;
+	position: fixed;
+	right: -400px;
+	top: 81px;
+	background-color: red;
+}
 
 * {
 	font-family: sans-serif;
@@ -131,9 +154,21 @@ header #leftButtonSpace {
 	height: calc(100vh - 102px);
 }
 
+#gameSpace {
+	width: 80vw;
+	background-color: white;
+	margin: 0px;
+
+	height: calc(100vh - 72px);
+}
+
 .gameDataContainer {
 	height: 90%;
 	order: 2;
+}
+
+.p5-maxed {
+	height: 100% !important;
 }
 
 .gameDataContainer div {
@@ -230,7 +265,7 @@ header #leftButtonSpace {
 
 .BackButton {
 	display: block;
-	width: 130px;
+	width: 50px;
 	height: 50px;
 	
 	text-align: center;
@@ -242,13 +277,18 @@ header #leftButtonSpace {
 	margin-top: auto;
 	margin-bottom: auto;
 
-	background-color: rgb(200,200,200);
-	border: 3px solid black;
-	border-radius: 4px;
+	background-color: rgb(250,250,250);
+	border-radius: 100%;
 }
 
 .BackButton:hover {
-	background-color: rgb(180, 180, 180);
+	background-color: rgb(220, 220, 220);
+}
+
+.BackButton img {
+	width: 100%;
+	height: 100%;
+	border-radius: 100%;
 }
 
 
