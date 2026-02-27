@@ -29,8 +29,8 @@ function fb_initialise() {
         projectId: "comp-2026-wilfred-leicester",
         storageBucket: "comp-2026-wilfred-leicester.firebasestorage.app",
         messagingSenderId: "668140603656",
-        appId: "1:668140603656:web:97049f339dac9f098e04bd",
-        measurementId: "G-K9EZVKP8GE"
+        appId: "1:668140603656:web:92072c21dead83ab8e04bd",
+        measurementId: "G-4ZQ93WGTXY"
     };
 
     fb_db = getDatabase(initializeApp(FB_GAMECONFIG));
@@ -59,30 +59,17 @@ async function fb_authenticate() {
     
                 const UID = result.user.uid;
                 
+                console.log(UID);
                 
-                var userExists = await fb_read("UserData/" + UID);
+                var userData = await fb_read("Users/" + UID);
                 
-                if(userExists == null) {
-                    //Create new Account
-
-                    //Add entry for this user in userData table
-                    fb_write("UserData/" + UID, 
-                        {
-                            userName: "",
-                            fullName: result.user.displayName, //private info, just so i know who's who
-                        }
-                    )
-        
-                    //Add entry for this user is all leaderboards
-                    
-                    Object.keys(await fb_read('Leaderboard')).forEach(game => {
-                        fb_write("Leaderboard/" + game + "/" + UID, { Score: 0 } )
-                    });
-                    
-                    changeName(true);
+                console.log(userData);
+                if(userData == null) {
+                    resolve(null);
+                } else {
+                    resolve(result);
                 }
 
-                resolve(result);
     
             } catch (error) {
                 console.log('error!');
@@ -92,18 +79,6 @@ async function fb_authenticate() {
             }
 
         })();
-
-
-        /*
-        signInWithPopup(AUTH, PROVIDER).then((result) => {    
-            resolve(result);
-        })
-        
-        .catch((error) => {
-            
-        });
-        */
-
     });
 }
 
@@ -313,8 +288,5 @@ async function changeLog() {
 	}
 }
 
-function fb_getAuthData() {
-    return getAuth();
-}
 
-export { fb_initialise, fb_authenticate, fb_authChanged, fb_logout, fb_write, fb_read, fb_update, fb_readSorted, fb_delete, fb_valChanged, changeName, changeLog, fb_getAuthData };
+export { fb_initialise, fb_authenticate, fb_authChanged, fb_logout, fb_write, fb_read, fb_update, fb_readSorted, fb_delete, fb_valChanged, changeName, changeLog, getAuth };

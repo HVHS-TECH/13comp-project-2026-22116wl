@@ -3,9 +3,11 @@ console.log('script connected');
 // Base written by Wilfred Leicester, Term 2 2025, edited and changed throughout in 2026
 /**************************************************************/
 
-import { fb_initialise, fb_authenticate, fb_logout, fb_read, fb_write, fb_update, fb_readSorted, fb_delete, changeName, changeLog, fb_getAuthData } from './fb.mjs';
+import { fb_initialise, fb_authenticate, fb_logout, fb_read, fb_write, fb_update, fb_readSorted, fb_delete, changeName, changeLog, getAuth } from './fb.mjs';
 
-if 
+if (sessionStorage.getItem('UID') != null) {
+    document.getElementById('payWall').style.display = "none";
+}
 
 
 async function updateStatus() {
@@ -80,6 +82,24 @@ function showSettings() {
     panel.style.right = "0px";
 }
 
+
+async function login() {
+    var auth = await fb_authenticate();
+
+    console.log(auth);
+
+    if (auth != null) {
+        document.getElementById('payWall').style.display = "none";
+        console.log('logged in as ' + auth.user.displayName);
+
+        sessionStorage.setItem('UID', auth.user.UID);
+    } else {
+        alert("user doesn't exist");
+    }
+
+}
+
+window.login = login;
 window.showSettings = showSettings;
 window.logChange = logChange;
 window.changeDisplayName = changeDisplayName;
