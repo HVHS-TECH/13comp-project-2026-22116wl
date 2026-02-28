@@ -1,40 +1,104 @@
-#payWall {
+#loginBlur {
 	position: fixed;
 	z-index: 11;
 	width: 100vw;
 	height: 100vh;
-	background-color: rgba(200, 200, 200, 0.7);
+	background-color: rgba(220, 220, 220, 0.7);
 	backdrop-filter: blur(10px);
+	display: none;
 }
 
-#payWall h1 {
+
+#loginBlur h1 {
 	font-size: 60px;
 }
 
-#payWall button {
+#loginBlur h2 {
+	font-size: 45px;
+	margin-bottom: 5vh;
+	margin-top: 15vh
+}
+
+#loginBlur button {
 	border: 0px;
-	width: 150px;
-	height: 50px;
+	
 	border-radius: 3px;
 	color: white;
 	background-color: rgb(180, 180, 180);
-	font-weight: 1000;
+	
 	font-size: 20px;
 	margin: 10px;
+	margin-left: auto;
+	margin-right: auto;
 	display: block;
 }
 
-#payWall * {
-	margin-left: auto !important;
-	margin-right: auto !important;
-	text-align: center;
+#landing button {
+	width: 150px;
+	height: 50px;
 }
 
-#payWall button:hover {
+
+#loginBlur * {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+
+	font-weight: bold;
+}
+
+#loginBlur button:hover {
 	background-color: rgb(120, 120, 120);
 }
 
-.AccountSettings {
+#registration {
+	display: none;
+}
+
+#fields div {
+	display: flex;
+	margin-top: 30px;
+	margin-bottom: 10px;
+}
+
+#fields div input {
+	width: 260px;
+	height: 35px;
+	font-size: 20px;
+	border: none;
+	border-radius: 2px;
+	background-color: rgb(240, 240, 240);
+
+	margin-right: calc(50vw - 320px) !important;
+	margin-left: 20px !important;
+}
+
+#fields {
+	overflow-y: auto;
+	max-height: 550px;
+	height: 50vh;
+
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
+
+#fields div p { 
+	width: 400px;
+	font-size: 22px;
+	margin: 0px;
+	margin-left: calc(50vw - 420px) !important;
+	margin-right: 20px !important;
+	text-align: right !important;
+	line-height: 35px;
+}
+
+#registration button {
+	width: 200px !important;
+	height: 60px !important;
+	margin-top: 5vh;
+}
+
+.AccountSettingsButton {
     width: 50px;
     height: 50px;
     margin-top: auto;
@@ -50,26 +114,33 @@
     background-color: lightgray;
 }
 
-.AccountSettings img {
+.AccountSettingsButton img {
 	border-radius: 100%;
 	width: 100%;
 	height: 100%;
 }
 
-.AccountSettings:hover {
+.AccountSettingsButton:hover {
 	background-color: gray;
 }
 
 
-.AccountSettingsPanel {
+.AccountSettings {
 	transform-origin: 100% 0%;
-	width: 400px;
-	height: calc(100vh - 81px);
+	width: 500px;
+	height: calc(100vh - 82px);
 	z-index: 10;
 	position: fixed;
-	right: -400px;
-	top: 81px;
-	background-color: red;
+	right: -500px;
+	top: 82px;
+	background-color: rgb(230, 230, 230);
+	border-left: 2px solid black;
+}
+
+.AccountSettings * {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
 }
 
 * {
@@ -195,7 +266,7 @@ header #leftButtonSpace {
 	background-color: white;
 	margin: 0px;
 
-	height: calc(100vh - 72px);
+	height: calc(100vh - 82px);
 }
 
 .gameDataContainer {
@@ -272,6 +343,9 @@ header #leftButtonSpace {
 #Leaderboard ol {
 	padding-left: 35px;
 	padding-right: 15px;
+	height: calc(100% - 68px);
+
+	overflow-y: auto;
 }
 
 .gameDataContainer h2 {

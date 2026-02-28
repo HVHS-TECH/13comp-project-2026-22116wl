@@ -10,7 +10,7 @@
 
 import { initializeApp }        from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import { getDatabase, runTransaction, set, get, ref, update, query, orderByChild, limitToFirst, limitToLast, onChildChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+import { getDatabase, runTransaction, set, get, ref, update, query, orderByChild, push, limitToFirst, limitToLast, onChildChanged, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
     
 // fb_initialise()
@@ -59,17 +59,7 @@ async function fb_authenticate() {
     
                 const UID = result.user.uid;
                 
-                console.log(UID);
-                
-                var userData = await fb_read("Users/" + UID);
-                
-                console.log(userData);
-                if(userData == null) {
-                    resolve(null);
-                } else {
-                    resolve(result);
-                }
-
+                resolve(result);
     
             } catch (error) {
                 console.log('error!');
@@ -221,22 +211,21 @@ function fb_update(path, data) {
 }
 
 
-async function fb_readSorted(path, sortkey, number) {
+async function fb_readSorted(path, sortkey) {
     const dbReference = ref(fb_db, path) ;
     
     return new Promise((resolve) => {
-        get(query(dbReference, orderByChild(sortkey), limitToLast(number))).then((snapshot) => {
+        get(query(dbReference, orderByChild(sortkey))).then((snapshot) => {
             var fb_data = snapshot.val();
             
             if (fb_data != null) {
-                //const LENGTH = Object.keys(snapshot.val()).length
-                
+
                 //put the values into array format
                 var valueArray = [];
                 snapshot.forEach((entry) => {
                     
                     const valObject = {
-                      [entry.key]: entry.val()[sortkey]
+                      [entry.key]: entry.val()
                     };
                     
                     valueArray.unshift( valObject ); //unshift used to put values at start of array and move everythign else forward (reversing the array which is given backwards by firebase)
@@ -270,23 +259,18 @@ async function fb_valChanged(path, callback) {
     });
 }
 
-async function changeLog() {
-	if (sessionStorage.getItem('UID') == null) {
-        return new Promise((resolve) => {
-            (async () => {
-                const userData = await fb_authenticate();
-                resolve (userData);
-            })();
-        });
-	} else {
-        return new Promise((resolve) => {
-            (async () => {
-                const logOut = await fb_logout();
-                resolve (logOut);
-            })();
-        });
-	}
+async function valChanged(path, callback) {
+    const QUERY = query(ref(fb_db, path), orderByChild(`highScore`), limitToLast(500));
+
+    onValue(QUERY, (snapshot) => {
+        console.log('change');
+        const DATA = snapshot.val();
+        const LEADERBOARD = Object.entries(DATA);
+        
+        callback(LEADERBOARD);
+    });
 }
 
 
-export { fb_initialise, fb_authenticate, fb_authChanged, fb_logout, fb_write, fb_read, fb_update, fb_readSorted, fb_delete, fb_valChanged, changeName, changeLog, getAuth };
+
+export { fb_initialise, fb_authenticate, fb_authChanged, fb_logout, fb_write, fb_read, fb_update, fb_readSorted, fb_delete, fb_valChanged, changeName, getAuth, valChanged };

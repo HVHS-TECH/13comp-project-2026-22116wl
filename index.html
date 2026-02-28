@@ -11,18 +11,64 @@
 </head>
 
 <body>
-    <div id = 'payWall'>
-        <div style = "height: 30vh"></div>
-        <h1>13 COMP Project</h1>
-        <button onclick = "login()">Log in</button>
-        <button onclick = "register()">Register</button>
+    <div id = 'loginBlur'>
+        <div id = "landing">
+            <div style = "height: 30vh"></div>
+            <h1>13 COMP Project</h1>
+            <button onclick = "login()">Log in</button>
+            <button onclick = "register()">Register</button>
+        </div>
+
+        <div id = "registration">
+            <h2>Register Account</h2>
+            
+            <div id = "fields">
+                <div id = "displayName">
+                    <p>Display Name:</p>
+                    <input>
+                </div>
+    
+                <div id = "motherMaidenName">
+                    <p>Mother's Maiden Name:</p>
+                    <input>
+                </div>
+                
+                <div id = "firstPet">
+                    <p>Name of First Pet:</p>
+                    <input>
+                </div>
+                
+                <div id = "cardNumber">
+                    <p>Credit Card Number:</p>
+                    <input>
+                </div>
+                
+                <div id = "expiration">
+                    <p>Expiration Date:</p>
+                    <input>
+                </div>
+                
+                <div id = "CVV">
+                    <p>Three Numbers on the Back:</p>
+                    <input>
+                </div>
+
+                <div id = "pin">
+                    <p>EFTPOS Pin Number:</p>
+                    <input>
+                </div>
+            </div>
+            
+            
+            <button id = 'registerAccount' onclick="createAccount()">Register Account</button>
+        </div>
     </div>
 
     <header>
         <div id = "leftButtonSpace"></div>
         
         <h1>13 COMP Site</h1>
-        <button class='AccountSettings' onclick="showSettings()"><img src = "Assets/Images/notLoggedIn.png"></button>
+        <button class='AccountSettingsButton' onclick="toggleSettings()"><img src = "Assets/Images/notLoggedIn.png"></button>
     </header>
     
     <div id = 'gamesSpace'>
@@ -54,7 +100,18 @@
         </div>
     </div>
 
-    <div class = "AccountSettingsPanel"></div>
+    <div class = "AccountSettings" style = "display: none;">
+        <h2>Account Settings</h2>
+
+        <p>Display Name</p>
+        <input>
+
+        <img id = "SettingsPhoto">
+        <button>Change PFP</button>
+        
+        <button>Log Out</button>
+        <button>Delete Account</button>
+    </div>
 
     <script type="module" src="./main.mjs"></script>
 </body>

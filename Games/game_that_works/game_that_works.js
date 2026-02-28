@@ -162,8 +162,6 @@ function menuScreen() {
     if (kb.presses('r')) { mouseControl = !mouseControl; }
 
     //if (kb.pressing('r')) {  }
-
-    console.log(control);
 }
 
 function finishedScreen() {
@@ -216,10 +214,12 @@ function gameScreen() {
             if (score > highScore) {
                 highScore = score;
             }
-
+            
             //tell the other script score updated
             window.dispatchEvent(new CustomEvent('scoreChanged', {
-                detail: { score: highScore }
+                detail: {
+                    highScore: highScore
+                }
             }));
 
             continue;

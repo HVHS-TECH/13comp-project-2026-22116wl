@@ -534,8 +534,11 @@ function gameScreen() {
             
             //tell the other script score updated
             window.dispatchEvent(new CustomEvent('scoreChanged', {
-                detail: { score: highScore }
+                detail: {
+                    highScore: highScore
+                }
             }));
+            
         }
     }
 

@@ -12,7 +12,7 @@ if (metaData.bg == 1) {
     document.getElementById('gameSpace').style.backgroundColor = "white";
 }
 
-import { fb_initialise, fb_authenticate, fb_readSorted, fb_read, fb_write, fb_valChanged, changeLog } from "./fb.mjs";
+import { fb_initialise, fb_authenticate, fb_readSorted, fb_read, fb_write, fb_valChanged, valChanged } from "./fb.mjs";
 window.fb_authenticate = fb_authenticate;
 
 
@@ -40,122 +40,87 @@ observer.observe(document.body, {childList: true, subtree: true});
 
 //when game finishes it fires this event
 window.addEventListener('scoreChanged', async function(event) {
-    const score = event.detail.score;
-    
-    if (score > sessionHighScore) {
-        sessionHighScore = score;
-    }
-    
-    //If logged in then update DB
-    if (sessionStorage.getItem("UID") != null) {
-        const oldScore = await fb_read('Leaderboard/' + currentGame + "/" + sessionStorage.getItem("UID") + "/Score");
-        if (score > oldScore) {
-            //New High Schore
-            await fb_write("Leaderboard/" + currentGame + "/" + sessionStorage.getItem("UID"), { Score: score });
+    //valueType is the key of the value passed in, such as "highScore", "Losses" or "Wins"
+    var leaderboardData = await fb_read('Leaderboards/' + currentGame + "/" + sessionStorage.getItem("UID"));
+
+    // Create leaderboard entry for the player
+    if (leaderboardData == null) {
+        var data = {
+            highScore: event.detail.highScore,
+            displayName: await fb_read("Users/" + sessionStorage.getItem('UID') + "/displayName")
         }
+
+        //hard coded other values for specific games set here
+        if (currentGame == "guess_the_number") {
+            data.losses = 0;
+            data.wins = 0;
+        }
+
+        fb_write('Leaderboards/' + currentGame + "/" + sessionStorage.getItem("UID"), data);
+    }
+
+    for (let valueType in event.detail) {
+
+        if (valueType == "highScore") {
+            const oldVal = leaderboardData[valueType];
+
+            //if we are updating the high score value, then chedck whether it is over the old one. If not then don't update it
+            if (event.detail.valueType < oldVal) {
+                continue;
+            }
+        }
+
+        console.log('writing');
+        await fb_write("Leaderboards/" + currentGame + "/" + sessionStorage.getItem("UID") + "/" + valueType, event.detail[valueType]);
+    }
+
+    if (event.detail.highScore > sessionHighScore) {
+        sessionHighScore = event.detail.highScore;
     }
 });
 
 async function drawLeaderboard() {
-    const leaderboardSpots = document.getElementsByClassName('leaderboardEntry').length;
-    var leaderboard = await fb_readSorted("Leaderboard/" + currentGame, "Score", leaderboardSpots);
-    
-    var entries = document.getElementsByClassName('leaderboardEntry');
-    for (var i = 0; i < entries.length; i++) {
-        var entry = entries[i];
+    var leaderboard = await fb_readSorted("Leaderboards/" + currentGame, "highScore");
+
+    document.getElementById("Leaderboard").querySelector('ol').innerHTML = "";
+
+    for (let entry in leaderboard) {
+        const KEY = Object.keys(leaderboard[entry])[0];
+        const VALUE = Object.entries(leaderboard[entry])[0][1];
+
+        var newLeaderboardEntry = document.createElement("li");
+        newLeaderboardEntry.className = "leaderboardEntry";
         
-        if (leaderboard[i] != null) {
-            const key = Object.keys(leaderboard[i])[0];
-            const value = leaderboard[i][key];  //entry from first key in object (just score)
-            
-            if (key == sessionStorage.getItem('UID')) {
-                //is user
-                
-                entry.querySelector(".leaderboardUsername").style.color = "#ba8800";
-                entry.querySelector(".leaderboardScoreNumber").style.color = "#ba8800";
-            } else {
-                entry.querySelector(".leaderboardUsername").style.color = "#000000";
-                entry.querySelector(".leaderboardScoreNumber").style.color = "#000000";
-            }
+        var scoreNumber = document.createElement("span");
+        scoreNumber.className = "leaderboardScoreNumber";
+        scoreNumber.innerHTML = VALUE.highScore;
 
-            entry.querySelector(".leaderboardUsername").innerHTML = await fb_read("UserData/" + key + "/userName");;
-            entry.querySelector(".leaderboardScoreNumber").innerHTML = value;
-            
-            entry.style = "display: list-item";
+        var userName = document.createElement("span");
+        userName.className = "leaderboardUsername";
+        userName.innerHTML = VALUE.displayName;
+
+        newLeaderboardEntry.appendChild(scoreNumber);
+        newLeaderboardEntry.appendChild(userName);
+
+        if (KEY == sessionStorage.getItem('UID')) {
+            //is user       
+            userName.style.color = "#ba8800";
+            scoreNumber.style.color = "#ba8800";
         } else {
-            // If there is not 4th 5th 6th etc place entry then hide the html element
-            entry.style = "display: none";
+            userName.style.color = "#000000";
+            scoreNumber.style.color = "#000000";
         }
+
+
+        document.getElementById("Leaderboard").querySelector('ol').appendChild(newLeaderboardEntry);
     }
 }
 
-async function updateLoginDiv() {
-    const UID = sessionStorage.getItem('UID');
 
-    if (UID != null) {
-        //User logged in
-        document.getElementById('loginStatus').innerHTML = "Logged In As: " + await fb_read("UserData/" + UID + '/userName');
-
-        document.getElementById('loginScreen').querySelector('h2').style = "display: block;";
-        document.getElementById('currentScore').style = "display: block;";
-
-        document.getElementById('currentScore').innerHTML = await fb_read('Leaderboard/' + currentGame + "/" + UID + "/Score");
-
-        document.getElementById('LogButton').innerHTML = "Log Out";
-
-    } else {
-        //User not logged in
-        document.getElementById('loginStatus').innerHTML = "Log in to save your score";
-
-        document.getElementById('loginScreen').querySelector('h2').style = "display: none;";
-        document.getElementById('currentScore').style = "display: none;";
-
-        document.getElementById('LogButton').innerHTML = "Log In";
-    }
-}
-
-updateLoginDiv();
 drawLeaderboard();
 
-async function logChange() {
-    var previousUID = sessionStorage.getItem('UID');
 
-    await changeLog();
-    
-    var currentUID = sessionStorage.getItem('UID');
-
-    console.log(sessionHighScore);
-    
-    //self explanatory labelled block
-    updateStoredScore: {
-        //If logging in after having played a game
-        if (previousUID == null && sessionHighScore > 0) {
-    
-            //If user has account but was playing offline then don't update their score unless it's higher (when logging into account)
-            var currentUserStoredScore = await fb_read("Leaderboard/" + currentGame + "/" + currentUID);
-    
-            console.log(currentUserStoredScore.Score);
-            if (currentUserStoredScore != null && currentUserStoredScore.Score > sessionHighScore ) { 
-                break updateStoredScore;
-            }
-
-            await fb_write("Leaderboard/" + currentGame + "/" + sessionStorage.getItem("UID"), { Score: sessionHighScore });
-        }
-    }
-    
-    updateLoginDiv();
+await valChanged("/Leaderboards/" + currentGame, function(change) {
     drawLeaderboard();
-}
-
-
-window.logChange = logChange;
-
-fb_valChanged("Leaderboard/" + currentGame, function(change) {
-    drawLeaderboard();
-    
-    if (change == sessionStorage.getItem('UID')) {
-        updateLoginDiv();
-    }
-
     //document.getElementById('currentScore').innerHTML = score;
 });

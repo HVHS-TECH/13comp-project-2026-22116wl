@@ -3,10 +3,10 @@ console.log('script connected');
 // Base written by Wilfred Leicester, Term 2 2025, edited and changed throughout in 2026
 /**************************************************************/
 
-import { fb_initialise, fb_authenticate, fb_logout, fb_read, fb_write, fb_update, fb_readSorted, fb_delete, changeName, changeLog, getAuth } from './fb.mjs';
+import { fb_initialise, fb_authenticate, fb_logout, fb_read, fb_write, fb_update, fb_readSorted, fb_delete, changeName, getAuth } from './fb.mjs';
 
-if (sessionStorage.getItem('UID') != null) {
-    document.getElementById('payWall').style.display = "none";
+if (sessionStorage.getItem('UID') == null) {
+    document.getElementById('loginBlur').style.display = "block";
 }
 
 
@@ -70,36 +70,103 @@ for (let i = 0; i < elements.length; i++) {
 	element.querySelector(".gameName").innerHTML = metaData.gameName;
 }
 
-//If logged in, log out. If logged out, log in.
 
-async function logChange() {
-	const userInfo = await changeLog();
-	updateStatus();
-}
+function toggleSettings() {
+    const panel = document.querySelector('.AccountSettings');
 
-function showSettings() {
-    const panel = document.querySelector('.AccountSettingsPanel')
-    panel.style.right = "0px";
-}
-
-
-async function login() {
-    var auth = await fb_authenticate();
-
-    console.log(auth);
-
-    if (auth != null) {
-        document.getElementById('payWall').style.display = "none";
-        console.log('logged in as ' + auth.user.displayName);
-
-        sessionStorage.setItem('UID', auth.user.UID);
-    } else {
-        alert("user doesn't exist");
+    var goingOut = panel.style.display == "none"
+    if (goingOut == true) {
+        panel.style.display = "block";
     }
 
+
+    const DURATION = 50;
+
+    var keyframes;
+    if (goingOut == true) {
+        keyframes = [
+            { transform: "translateX(0px)" },
+            { transform: "translateX(-" + panel.offsetWidth + "px)" }
+        ]
+    } else {
+        keyframes = [
+            { transform: "translateX(-"+ panel.offsetWidth +"px)" },
+            { transform: "translateX(0px)" }
+        ]
+    } 
+
+    panel.animate(keyframes, {
+        duration: DURATION,
+        iterations: 1,
+        fill: 'forwards'
+    })
+
+    if (goingOut == false) {
+        setTimeout(function() {
+            panel.style.display = 'none';
+        }, DURATION);
+    }
 }
 
+
+async function login(authenticate) {
+    //autenticate parameter is used for logging in after registraion. Run function after registration without doing another auth popup
+    if (authenticate != false) {
+        if (await fb_read('Users/' + (await fb_authenticate()).user.uid) == null) {
+            alert("user doesn't exist");
+            return;
+        }
+    }
+    
+    var auth = getAuth();
+    console.log(auth);
+    console.log('logged in as ' + auth.currentUser.displayName);
+    document.getElementById('loginBlur').style.display = "none";
+    sessionStorage.setItem('UID', auth.currentUser.UID);
+
+}
+
+async function register() {
+    console.log('ran')
+    var auth = await fb_authenticate();
+    
+    if (await fb_read("Users/" + auth.user.uid) != null) {
+        alert("User already exists!");
+        return;
+    }
+
+    document.getElementById('landing').style.display = "none";
+    document.getElementById('registration').style.display = "block";
+
+    document.getElementById('displayName').querySelector('input').value = auth.user.displayName;
+
+}
+
+async function createAccount() {
+    var userData = {
+        admin: false
+    }
+
+    const fields = document.getElementById('fields').children;
+    for (let i = 0; i < fields.length-1; i++) {
+        let field = fields[i];
+        console.log(field);
+        console.log(field.id);
+        userData[field.id] = field.querySelector('input').value;
+    }
+
+
+    const AUTH = getAuth();
+
+    //Create User in DB
+    fb_write("Users/" + AUTH.currentUser.uid, userData);
+
+    //enter site
+    login(false);
+}
+
+window.createAccount = createAccount;
+window.register = register;
 window.login = login;
-window.showSettings = showSettings;
-window.logChange = logChange;
+window.toggleSettings = toggleSettings;
 window.changeDisplayName = changeDisplayName;
