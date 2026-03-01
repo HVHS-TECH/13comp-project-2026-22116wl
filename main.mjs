@@ -80,18 +80,18 @@ function toggleSettings() {
     }
 
 
-    const DURATION = 50;
+    const DURATION = 90;
 
     var keyframes;
     if (goingOut == true) {
         keyframes = [
-            { transform: "translateX(0px)" },
-            { transform: "translateX(-" + panel.offsetWidth + "px)" }
+            { right: "-" + panel.offsetWidth + "px" },
+            { right: "0px" }
         ]
     } else {
         keyframes = [
-            { transform: "translateX(-"+ panel.offsetWidth +"px)" },
-            { transform: "translateX(0px)" }
+            { right: "0px" },
+            { right: "-" + panel.offsetWidth + "px" }
         ]
     } 
 
@@ -124,6 +124,10 @@ async function login(authenticate) {
     document.getElementById('loginBlur').style.display = "none";
     sessionStorage.setItem('UID', auth.currentUser.UID);
 
+    const pfp = getAuth().currentUser.photoURL;
+    document.querySelector(".AccountSettingsButton").querySelector('img').src = pfp;
+
+    document.getElementById("settingsPhoto").src = pfp;
 }
 
 async function register() {
@@ -165,8 +169,17 @@ async function createAccount() {
     login(false);
 }
 
+async function logOut() {
+    fb_logout();
+
+    document.querySelector('.AccountSettings').style.right = "-500px";
+    document.querySelector('.AccountSettings').style.display = "none";
+    document.getElementById('loginBlur').style.display = 'block';
+}
+
 window.createAccount = createAccount;
 window.register = register;
+window.logOut = logOut;
 window.login = login;
 window.toggleSettings = toggleSettings;
 window.changeDisplayName = changeDisplayName;
