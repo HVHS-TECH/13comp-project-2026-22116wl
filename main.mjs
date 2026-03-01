@@ -112,14 +112,16 @@ function toggleSettings() {
 async function login(authenticate) {
     //autenticate parameter is used for logging in after registraion. Run function after registration without doing another auth popup
     if (authenticate != false) {
-        if (await fb_read('Users/' + (await fb_authenticate()).user.uid) == null) {
+
+        var auth = await fb_authenticate();
+
+        if (await fb_read('Users/' + (auth.user.uid)) == null) {
             alert("user doesn't exist");
             return;
         }
     }
     
     var auth = getAuth();
-    console.log(auth);
     console.log('logged in as ' + auth.currentUser.displayName);
     document.getElementById('loginBlur').style.display = "none";
     sessionStorage.setItem('UID', auth.currentUser.UID);
@@ -175,6 +177,12 @@ async function logOut() {
     document.querySelector('.AccountSettings').style.right = "-500px";
     document.querySelector('.AccountSettings').style.display = "none";
     document.getElementById('loginBlur').style.display = 'block';
+
+    document.getElementById('loginBlur').style.display = 'block';
+    document.getElementById('landing').style.display = 'block';
+    document.getElementById('registration').style.display = 'none';
+
+    
 }
 
 window.createAccount = createAccount;
