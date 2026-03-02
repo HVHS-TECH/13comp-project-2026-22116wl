@@ -96,12 +96,20 @@ async function login(authenticate) {
         var auth = await getAuth();
         const UID = auth.currentUser.uid;
         
+        
         console.log('logged in as ' + auth.currentUser.displayName);
         const pfp = getAuth().currentUser.photoURL;
         document.getElementById("accountSettingsButton").querySelector('img').src = pfp;
-    
+        
+        
         document.getElementById("settingsPhoto").src = pfp;
-        document.getElementById("nameChangeBox").querySelector('input').value = await fb_read("/Users/" + UID + '/displayName');
+
+        var userData = await fb_read("/Users/" + UID);
+        document.getElementById("nameChangeBox").querySelector('input').value = userData.displayName;
+        
+        if (userData.admin == true) {
+            document.getElementById('adminButton').style.display = 'block';
+        }
 
     }, 1000);
 }

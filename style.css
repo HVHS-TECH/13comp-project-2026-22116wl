@@ -454,6 +454,14 @@ header #leftButtonSpace {
 	border-radius: 100%;
 }
 
+.BackButton:hover {
+	filter: brightness(75%)
+}
+
+.BackButton:active {
+	filter: brightness(70%)
+}
+
 
 #loginBox {
 	margin-left: auto;
@@ -532,4 +540,59 @@ button:active {
 
 button:disabled {	
 	filter: brightness(120%);
+}
+
+
+#adminButton {
+	width: 80px;
+	height: 50px;
+	background-color: black;
+	margin-top: 13px;
+	padding: 0px;
+
+	display: none;
+}
+
+#adminButton a {
+	width: 100%;
+	height: 100%;
+	display: block;
+	padding-top: 7px;
+}
+
+#adminButton p {
+	display: block;
+	margin: 0px;
+	font-weight: bold;
+	color: lightgray;
+}
+
+
+#adminPage {
+	display: flex;
+}
+
+#adminPage * {
+	display: block;
+	margin-right: auto;
+	margin-left: auto;
+	text-align: center;
+}
+
+#adminUserSettings {
+	width: calc(100vw - 500px);
+	height: calc(100vh - 82px);
+}
+
+#adminUserList {
+	width: 500px;
+	height: calc(100vh - 82px);
+	border-left: 2px solid black;
+}
+
+#scrollingUserList {
+	overflow-y: scroll;
+	width: 95%;
+	height: calc(100% - 68px);
+	padding-left: 20px;
 }
