@@ -20,13 +20,26 @@
     </header>
     
     <main id = "adminPage">
-        <div id = "adminUserSettings">
+        <div id = "adminUserSettings" style = "display: none;">
+            
+            <h2></h2>
+            <img>
 
+            <div id = "adminNameChangeBox">
+                <div></div>
+                <input>
+                <button onclick = "changeName()"><img src = "./Assets/Images/EditIcon.png"></button>
+            </div>
+
+            <button>Ban User</button>
+            <button>Delete Account</button>
         </div>
+
+
         <div id = "adminUserList">
             <h2>Users</h2>
-            
-            <button id = "template" class = "listUser" style = "display: none !important;">
+
+            <button id = "template" class = "listUser" style = "display: none !important;" onclick="focusUser(this.id)">
                 <img src = "https://lh3.googleusercontent.com/a/ACg8ocL27mRS_j07ony9Yvdh5OGC8mjsilsCv3r5xkmatQOSR943pnKU=s96-c">
                 <p id = "displayName">Wilfred Leicester</p>
             </button>

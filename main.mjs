@@ -4,6 +4,7 @@ console.log('script connected');
 /**************************************************************/
 
 import { fb_initialise, fb_authenticate, fb_logout, fb_read, fb_write, fb_update, fb_readSorted, fb_delete, getAuth } from './fb.mjs';
+import { setName } from "./functions.mjs";
 
 console.log(sessionStorage.getItem("UID"));
 if (sessionStorage.getItem('UID') != null) {
@@ -194,25 +195,6 @@ async function deleteAccount() {
 
     fb_write("/Users/" + UID, null);
     
-}
-
-async function setName() {
-    var newName = document.getElementById('nameChangeBox').querySelector('input').value;
-    if (newName == "") {
-        alert('enter a name');
-        return;
-    }
-    
-    var UID = sessionStorage.getItem('UID');
-    
-    var leaderboards = await fb_read("/Leaderboards/");
-    for (let game in leaderboards) {
-        if (leaderboards[game][UID] != null) {
-            fb_write("/Leaderboards/" + game + "/" + UID + "/displayName", newName);
-        }
-    }    
-
-    fb_write('/Users/' + UID + '/displayName', newName);
 }
 
 

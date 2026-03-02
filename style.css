@@ -400,7 +400,7 @@ header #leftButtonSpace {
 #Leaderboard ol {
 	padding-left: 35px;
 	padding-right: 15px;
-	height: calc(100% - 68px);
+	height: calc(100% - 95px);
 
 	overflow-y: auto;
 }
@@ -627,4 +627,56 @@ button:disabled {
 	margin: 0px !important;
 	margin-top: 33px !important;
 	font-size: 25px;
+}
+
+
+#adminPage * {
+	display: block;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+#adminUserSettings img {
+	height: 160px;
+	width: 160px;	
+	border-radius: 100%;
+	border: 4px solid black;
+}
+
+#adminNameChangeBox {
+	display: flex;
+	width: 65%;
+	height: 40px;
+
+	margin-bottom: 20%;
+}
+
+
+#adminNameChangeBox img {
+	width: 100%;
+	height: 80%;
+	border: 0px;
+}
+
+#adminNameChangeBox div {
+	margin: 0px;
+	width: 40px;
+}
+
+#adminNameChangeBox input {
+	height: 40px;
+	padding: 0px;
+
+	border: 0px;
+	border-radius: 4px;
+	width: 65%;
+
+	background-color: lightgray;
+
+	pointer-events: none;
+}
+
+#nameChangeBox button {
+	width: 40px;
+	margin: 0px;
 }

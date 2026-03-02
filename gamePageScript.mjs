@@ -1,10 +1,12 @@
 var currentGame = sessionStorage.getItem('game');
 console.log(currentGame);
 
+//import game metadata, such as game name in text 
 const metaData = await import(`./Games/${currentGame}/gameMetaData.mjs`);
 
 document.querySelector("h1").innerHTML = metaData.gameName;
 
+// use game metadata to set background colour (of window)
 console.log(metaData);
 if (metaData.bg == 1) {
     document.getElementById('gameSpace').style.backgroundColor = "black";
@@ -15,9 +17,6 @@ if (metaData.bg == 1) {
 import { fb_initialise, fb_authenticate, fb_readSorted, fb_read, fb_write, fb_valChanged, valChanged } from "./fb.mjs";
 window.fb_authenticate = fb_authenticate;
 
-
-//Stored locally (for non logged in accounts) so if someone logs in it can be stored instantly
-var sessionHighScore = 0;
 
 // Detect element added, if element is p5 canvas then add it to the div
 const observer = new MutationObserver((mutationsList) => {
@@ -35,10 +34,7 @@ const observer = new MutationObserver((mutationsList) => {
 });
 
 observer.observe(document.body, {childList: true, subtree: true});
-
-
-
-//when game finishes it fires this event
+//when game finishes fire this event in order to update the score
 window.addEventListener('scoreChanged', async function(event) {
     //valueType is the key of the value passed in, such as "highScore", "Losses" or "Wins"
     var leaderboardData = await fb_read('Leaderboards/' + currentGame + "/" + sessionStorage.getItem("UID"));
@@ -72,10 +68,6 @@ window.addEventListener('scoreChanged', async function(event) {
 
         console.log('writing');
         await fb_write("Leaderboards/" + currentGame + "/" + sessionStorage.getItem("UID") + "/" + valueType, event.detail[valueType]);
-    }
-
-    if (event.detail.highScore > sessionHighScore) {
-        sessionHighScore = event.detail.highScore;
     }
 });
 
@@ -120,6 +112,7 @@ async function drawLeaderboard() {
 drawLeaderboard();
 
 
+//Detect changes in the leaderboard for the current game, and then redraw the leaderboard
 await valChanged("/Leaderboards/" + currentGame, function(change) {
     drawLeaderboard();
     //document.getElementById('currentScore').innerHTML = score;
