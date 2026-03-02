@@ -72,30 +72,6 @@ async function fb_authenticate() {
     });
 }
 
-async function changeName(mandatory) {
-    return new Promise((resolve) => {
-        (async () => {
-            var newName = prompt("What do you want your display name to be?");
-            if (newName != null && newName != "" && newName != " ") {
-                await fb_write("UserData/" + sessionStorage.getItem('UID') + "/userName", newName);
-                resolve(newName);
-            } else {
-                //user didn't set name
-    
-                if (mandatory) {
-                    //resolve user's google name
-                    const newName = getAuth().currentUser.displayName;
-                    
-                    await fb_write("UserData/" + sessionStorage.getItem('UID') + "/userName", newName);
-                    resolve(newName);
-
-                } else {
-                    resolve(null);
-                }
-            }
-        })();
-    });
-}
 
 function fb_authChanged() {
     const AUTH = getAuth();
@@ -273,4 +249,4 @@ async function valChanged(path, callback) {
 
 
 
-export { fb_initialise, fb_authenticate, fb_authChanged, fb_logout, fb_write, fb_read, fb_update, fb_readSorted, fb_delete, fb_valChanged, changeName, getAuth, valChanged };
+export { fb_initialise, fb_authenticate, fb_authChanged, fb_logout, fb_write, fb_read, fb_update, fb_readSorted, fb_delete, fb_valChanged, getAuth, valChanged };

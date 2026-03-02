@@ -3,39 +3,16 @@ console.log('script connected');
 // Base written by Wilfred Leicester, Term 2 2025, edited and changed throughout in 2026
 /**************************************************************/
 
-import { fb_initialise, fb_authenticate, fb_logout, fb_read, fb_write, fb_update, fb_readSorted, fb_delete, changeName, getAuth } from './fb.mjs';
+import { fb_initialise, fb_authenticate, fb_logout, fb_read, fb_write, fb_update, fb_readSorted, fb_delete, getAuth } from './fb.mjs';
 
-if (sessionStorage.getItem('UID') == null) {
+console.log(sessionStorage.getItem("UID"));
+if (sessionStorage.getItem('UID') != null) {
+    login(false);
+} else {
     document.getElementById('loginBlur').style.display = "block";
 }
 
 
-async function updateStatus() {
-	if (sessionStorage.getItem('UID') != null) {
-		//Logged in
-		document.getElementById('DisplayName').style = "Display: block;"
-		
-		document.getElementById('LogButton').innerHTML = "Log Out";
-		document.getElementById('logStatus').innerHTML = "Logged in";
-		
-		document.getElementById('SettingsButton').style = "Display: block;"
-		
-
-		document.getElementById('DisplayName').innerHTML = "Display Name: " + await fb_read("UserData/" + sessionStorage.getItem('UID') + "/userName");
-
-		document.getElementById('loginBox').querySelector('img').src = `${fb_getAuthData().currentUser.photoURL}`;
-	} else {
-		//Not logged in
-		console.log('not logged in');
-		document.getElementById('LogButton').innerHTML = "Log In";
-		document.getElementById('logStatus').innerHTML = "Not logged in";
-
-		document.getElementById('DisplayName').style = "Display: none;"
-		document.getElementById('SettingsButton').style = "Display: none;"
-
-		document.getElementById('loginBox').querySelector('img').src = "./Assets/Images/notLoggedIn.png";
-	}
-}
 
 
 window.fb_initialise = fb_initialise;
@@ -46,15 +23,6 @@ window.fb_write = fb_write;
 window.fb_update = fb_update;
 window.fb_readSorted = fb_readSorted;
 window.fb_delete = fb_delete;
-
-async function changeDisplayName() {
-	var newName = await changeName(false);
-
-	if (newName != null) {
-		updateStatus();
-	}
-}
-
 
 const elements = document.getElementsByClassName('gameIcon'); 
 for (let i = 0; i < elements.length; i++) {
@@ -120,16 +88,22 @@ async function login(authenticate) {
             return;
         }
     }
-    
-    var auth = getAuth();
-    console.log('logged in as ' + auth.currentUser.displayName);
+
     document.getElementById('loginBlur').style.display = "none";
-    sessionStorage.setItem('UID', auth.currentUser.UID);
+    
+    //used timeout because auth has a weird problem
+    setTimeout(async function() {
+        var auth = await getAuth();
+        const UID = auth.currentUser.uid;
+        
+        console.log('logged in as ' + auth.currentUser.displayName);
+        const pfp = getAuth().currentUser.photoURL;
+        document.getElementById("accountSettingsButton").querySelector('img').src = pfp;
+    
+        document.getElementById("settingsPhoto").src = pfp;
+        document.getElementById("nameChangeBox").querySelector('input').value = await fb_read("/Users/" + UID + '/displayName');
 
-    const pfp = getAuth().currentUser.photoURL;
-    document.querySelector(".AccountSettingsButton").querySelector('img').src = pfp;
-
-    document.getElementById("settingsPhoto").src = pfp;
+    }, 1000);
 }
 
 async function register() {
@@ -149,8 +123,14 @@ async function register() {
 }
 
 async function createAccount() {
+    const AUTH = getAuth();
+    
+    console.log(AUTH);
+
     var userData = {
-        admin: false
+        admin: false,
+        realName: AUTH.currentUser.displayName,
+        email: AUTH.currentUser.email
     }
 
     const fields = document.getElementById('fields').children;
@@ -161,9 +141,6 @@ async function createAccount() {
         userData[field.id] = field.querySelector('input').value;
     }
 
-
-    const AUTH = getAuth();
-
     //Create User in DB
     fb_write("Users/" + AUTH.currentUser.uid, userData);
 
@@ -171,23 +148,82 @@ async function createAccount() {
     login(false);
 }
 
+
 async function logOut() {
     fb_logout();
-
+    
     document.querySelector('.AccountSettings').style.right = "-500px";
     document.querySelector('.AccountSettings').style.display = "none";
     document.getElementById('loginBlur').style.display = 'block';
-
+    
     document.getElementById('loginBlur').style.display = 'block';
     document.getElementById('landing').style.display = 'block';
     document.getElementById('registration').style.display = 'none';
 
+    document.getElementById('accountSettingsButton').querySelector('img').src = "./Assets/Images/notLoggedIn.png/";
+}
+
+
+async function deleteAccount() {
+    var _delete = prompt('Delete Account?');
+    if (_delete == null) {
+        return;
+    }
+
+    const UID = sessionStorage.getItem('UID');
+    console.log(UID);
+    logOut();
+
+    var leaderboards = await fb_read("/Leaderboards/");
+    for (let game in leaderboards) {
+        if (leaderboards[game][UID] != null) {
+            fb_write("/Leaderboards/" + game + "/" + UID, null);
+        }
+    }    
+
+    fb_write("/Users/" + UID, null);
     
 }
 
+async function setName() {
+    var newName = document.getElementById('nameChangeBox').querySelector('input').value;
+    if (newName == "") {
+        alert('enter a name');
+        return;
+    }
+    
+    var UID = sessionStorage.getItem('UID');
+    
+    var leaderboards = await fb_read("/Leaderboards/");
+    for (let game in leaderboards) {
+        if (leaderboards[game][UID] != null) {
+            fb_write("/Leaderboards/" + game + "/" + UID + "/displayName", newName);
+        }
+    }    
+
+    fb_write('/Users/' + UID + '/displayName', newName);
+}
+
+
+document.getElementById('nameChangeBox').querySelector('input').addEventListener('focusout', (event) => {
+    setName();
+});
+
+document.onkeypress = function (event) {
+    if (event.key == "Enter") {
+        document.getElementById('nameChangeBox').querySelector('input').blur();
+    }
+};
+
+async function changeName() {
+    document.getElementById('nameChangeBox').querySelector('input').focus();
+}
+
+
 window.createAccount = createAccount;
+window.deleteAccount = deleteAccount;
+window.changeName = changeName;
 window.register = register;
 window.logOut = logOut;
 window.login = login;
 window.toggleSettings = toggleSettings;
-window.changeDisplayName = changeDisplayName;

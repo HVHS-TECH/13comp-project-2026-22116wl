@@ -47,10 +47,6 @@
 	font-weight: bold;
 }
 
-#loginBlur button:hover {
-	background-color: rgb(120, 120, 120);
-}
-
 #registration {
 	display: none;
 }
@@ -98,7 +94,7 @@
 	margin-top: 5vh;
 }
 
-.AccountSettingsButton {
+#accountSettingsButton {
     width: 50px;
     height: 50px;
     margin-top: auto;
@@ -114,14 +110,10 @@
     background-color: lightgray;
 }
 
-.AccountSettingsButton img {
+#accountSettingsButton img {
 	border-radius: 100%;
 	width: 100%;
 	height: 100%;
-}
-
-.AccountSettingsButton:hover {
-	background-color: gray;
 }
 
 
@@ -135,16 +127,81 @@
 	top: 82px;
 	background-color: rgb(230, 230, 230);
 	border-left: 2px solid black;
+	font-weight: bold;
+
+	font-family: Verdana;
 }
 
-.AccountSettings * {
+
+#nameChangeBox {
+	display: flex;
+	width: 65%;
+	height: 40px;
+
+	margin-bottom: 20%;
+}
+
+#nameChangeBox img {
+	width: 100%;
+	height: 80%;
+}
+
+#nameChangeBox div {
+	margin: 0px;
+	width: 40px;
+}
+
+#nameChangeBox input {
+	height: 40px;
+	padding: 0px;
+
+	border: 0px;
+	border-radius: 4px;
+	width: 65%;
+
+	pointer-events: none;
+}
+
+#nameChangeBox button {
+	width: 40px;
+	margin: 0px;
+}
+
+.AccountSettings button {
+	width: 130px;
+	height: 40px;
+	border: 0px;
+	border-radius: 4px;
+	
+	margin-top: 30px;
+	margin-bottom: 0px;
+}
+
+#settingsPhoto {
 	margin-left: auto;
 	margin-right: auto;
-	text-align: center;
+	margin-bottom: 40px;
+
+	border-radius: 100%;
+	border: 3px solid gray;
+	width: 25%;
+}
+
+#deleteButton {
+	background-color: red;
 }
 
 * {
 	font-family: sans-serif;
+}
+
+
+.AccountSettings * {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+
+	text-align: center;
 }
 
 body {
@@ -391,10 +448,6 @@ header #leftButtonSpace {
 	border-radius: 100%;
 }
 
-.BackButton:hover {
-	background-color: rgb(220, 220, 220);
-}
-
 .BackButton img {
 	width: 100%;
 	height: 100%;
@@ -470,9 +523,13 @@ button {
 }
 
 button:hover {
-	background-color: rgb(180, 180, 180);
+	filter: brightness(90%);
+}
+
+button:active {	
+	filter: brightness(75%);
 }
 
 button:disabled {	
-	background-color: rgb(240, 240, 240);
+	filter: brightness(120%);
 }

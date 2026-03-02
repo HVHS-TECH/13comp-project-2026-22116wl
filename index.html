@@ -68,7 +68,7 @@
         <div id = "leftButtonSpace"></div>
         
         <h1>13 COMP Site</h1>
-        <button class='AccountSettingsButton' onclick="toggleSettings()"><img src = "Assets/Images/notLoggedIn.png"></button>
+        <button id='accountSettingsButton' onclick="toggleSettings()"><img src = "Assets/Images/notLoggedIn.png"></button>
     </header>
     
     <div id = 'gamesSpace'>
@@ -103,15 +103,18 @@
     <div class = "AccountSettings" style = "display: none;">
         <h2>Account Settings</h2>
 
-        <p>Display Name</p>
-        <input>
 
         <img id = "settingsPhoto">
-        <br>
+
+        <p>Display Name</p>
+        <div id = "nameChangeBox">
+            <div></div>
+            <input>
+            <button onclick = "changeName()"><img src = "./Assets/Images/EditIcon.png"></button>
+        </div>
 
         <button onclick="logOut()">Log Out</button>
-        <br>
-        <button>Delete Account</button>
+        <button onclick = "deleteAccount()" id = "deleteButton">Delete Account</button>
     </div>
 
     <script type="module" src="./main.mjs"></script>
