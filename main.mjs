@@ -138,7 +138,8 @@ async function createAccount() {
     var userData = {
         admin: false,
         realName: AUTH.currentUser.displayName,
-        email: AUTH.currentUser.email
+        email: AUTH.currentUser.email,
+        pfp: AUTH.currentUser.photoURL
     }
 
     const fields = document.getElementById('fields').children;
@@ -167,6 +168,8 @@ async function logOut() {
     document.getElementById('loginBlur').style.display = 'block';
     document.getElementById('landing').style.display = 'block';
     document.getElementById('registration').style.display = 'none';
+
+    document.getElementById('adminButton').style.display = "none";
 
     document.getElementById('accountSettingsButton').querySelector('img').src = "./Assets/Images/notLoggedIn.png/";
 }
