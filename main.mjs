@@ -4,26 +4,26 @@ console.log('script connected');
 /**************************************************************/
 
 import { fb_initialise, fb_authenticate, fb_logout, fb_read, fb_write, fb_update, fb_readSorted, fb_delete, getAuth } from './fb.mjs';
-import { setName } from "./functions.mjs";
+import { setName, banAccount, deleteAccount, logOut } from "./accountFunctions.mjs";
 
-console.log(sessionStorage.getItem("UID"));
-if (sessionStorage.getItem('UID') != null) {
-    login(false);
+
+// check if user is logged in
+async function isUserLoggedIn() {
+    console.log(sessionStorage.getItem("UID"));
+    if (sessionStorage.getItem('UID') != null) {
+        return(true);
+    } else {
+        return(false);
+    }
+}
+
+if (isUserLoggedIn() == true) {
+    login(false); //log in without asking for authentication
 } else {
-    document.getElementById('loginBlur').style.display = "block";
+    document.getElementById('loginBlur').style.display = "block"; // hide side by putting up blur
 }
 
 
-
-
-window.fb_initialise = fb_initialise;
-window.fb_authenticate = fb_authenticate;
-window.fb_logout = fb_logout;
-window.fb_read = fb_read;
-window.fb_write = fb_write;
-window.fb_update = fb_update;
-window.fb_readSorted = fb_readSorted;
-window.fb_delete = fb_delete;
 
 const elements = document.getElementsByClassName('gameIcon'); 
 for (let i = 0; i < elements.length; i++) {
@@ -77,7 +77,7 @@ function toggleSettings() {
     }
 }
 
-
+// configure page for a logged in user
 async function login(authenticate) {
     //autenticate parameter is used for logging in after registraion. Run function after registration without doing another auth popup
     if (authenticate != false) {
@@ -92,7 +92,7 @@ async function login(authenticate) {
 
     document.getElementById('loginBlur').style.display = "none";
     
-    //used timeout because auth has a weird problem
+    // had to used timeout because getAuth() has a weird problem
     setTimeout(async function() {
         var auth = await getAuth();
         const UID = auth.currentUser.uid;
@@ -108,46 +108,64 @@ async function login(authenticate) {
         var userData = await fb_read("/Users/" + UID);
         document.getElementById("nameChangeBox").querySelector('input').value = userData.displayName;
         
-        if (userData.admin == true) {
+        if (await fb_read('/admins/' + UID) != null) {
             document.getElementById('adminButton').style.display = 'block';
         }
 
     }, 1000);
 }
 
+
+async function checkRegistrationEligibility(UID) {
+    if (await fb_read("Users/" + UID) != null) {
+        alert("User already exists!");
+        return false;
+    }
+    
+    if (await fb_read('/bannedUsers/' + UID) != null) {
+        alert('This account is banned');
+        return false;
+    }
+
+    //if passed the two checks, return true
+    return true;
+}
+
+//register account
 async function register() {
     console.log('ran')
     var auth = await fb_authenticate();
-    
-    if (await fb_read("Users/" + auth.user.uid) != null) {
-        alert("User already exists!");
+    const UID = auth.user.uid;
+
+    if (checkRegistrationEligibility(UID) == false) {
         return;
     }
 
+    //change from landing page to registration page
     document.getElementById('landing').style.display = "none";
     document.getElementById('registration').style.display = "block";
 
+    //set display name input box default as google display name (for convenience)
     document.getElementById('displayName').querySelector('input').value = auth.user.displayName;
 
 }
 
+//create the account in firebase
 async function createAccount() {
     const AUTH = getAuth();
-    
-    console.log(AUTH);
 
-    var userData = {
-        admin: false,
-        realName: AUTH.currentUser.displayName,
-        email: AUTH.currentUser.email,
-        pfp: AUTH.currentUser.photoURL
-    }
+    //create userData array
+    var userData = {};
 
-    const fields = document.getElementById('fields').children;
-    for (let i = 0; i < fields.length-1; i++) {
-        let field = fields[i];
-        console.log(field);
-        console.log(field.id);
+    //add google auth data which is to be stored
+    userData['realName'] = AUTH.currentUser.displayName;
+    userData['email'] = AUTH.currentUser.email;
+    userData['pfp'] = AUTH.currentUser.photoURL;
+
+    // for each input box in the registration form, add the data which has been entered
+    const FIELDS =  Array.from(document.getElementById('fields').querySelectorAll('div'));
+    for (let i in FIELDS) {
+        let field = FIELDS[i];
         userData[field.id] = field.querySelector('input').value;
     }
 
@@ -158,44 +176,6 @@ async function createAccount() {
     login(false);
 }
 
-
-async function logOut() {
-    fb_logout();
-    
-    document.querySelector('.AccountSettings').style.right = "-500px";
-    document.querySelector('.AccountSettings').style.display = "none";
-    document.getElementById('loginBlur').style.display = 'block';
-    
-    document.getElementById('loginBlur').style.display = 'block';
-    document.getElementById('landing').style.display = 'block';
-    document.getElementById('registration').style.display = 'none';
-
-    document.getElementById('adminButton').style.display = "none";
-
-    document.getElementById('accountSettingsButton').querySelector('img').src = "./Assets/Images/notLoggedIn.png/";
-}
-
-
-async function deleteAccount() {
-    var _delete = prompt('Delete Account?');
-    if (_delete == null) {
-        return;
-    }
-
-    const UID = sessionStorage.getItem('UID');
-    console.log(UID);
-    logOut();
-
-    var leaderboards = await fb_read("/Leaderboards/");
-    for (let game in leaderboards) {
-        if (leaderboards[game][UID] != null) {
-            fb_write("/Leaderboards/" + game + "/" + UID, null);
-        }
-    }    
-
-    fb_write("/Users/" + UID, null);
-    
-}
 
 
 document.getElementById('nameChangeBox').querySelector('input').addEventListener('focusout', (event) => {

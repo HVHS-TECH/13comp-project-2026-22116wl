@@ -96,8 +96,9 @@ function fb_logout() {
 
     return new Promise((resolve) => {
         signOut(AUTH).then(() => {
-            resolve(true);
             console.log('successful logout');
+            sessionStorage.removeItem('UID');
+            resolve(true);
         })
     
         .catch((error) => {

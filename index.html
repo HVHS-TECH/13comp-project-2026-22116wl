@@ -67,14 +67,14 @@
     <header>
         <div id = "leftButtonSpace">
             <button id = "adminButton">
-                <a href = "./admin.html">
+                <a href = "./adminPage/admin.html">
                     <p>Admin Settings</p>
                 </a>
             </button>
         </div>
         
         <h1>13 COMP Site</h1>
-        <button id='accountSettingsButton' onclick="toggleSettings()"><img src = "Assets/Images/notLoggedIn.png"></button>
+        <button id='accountSettingsButton' onclick="toggleSettings()"><img src = "./Assets/Images/notLoggedIn.png"></button>
     </header>
     
     <div id = 'gamesSpace'>
@@ -120,7 +120,7 @@
         </div>
 
         <button onclick="logOut()">Log Out</button>
-        <button onclick = "deleteAccount()" id = "deleteButton">Delete Account</button>
+        <button onclick = "deleteAccount(sessionStorage.getItem('UID'))" id = "deleteButton">Delete Account</button>
     </div>
 
     <script type="module" src="./main.mjs"></script>

@@ -52,7 +52,7 @@ window.addEventListener('scoreChanged', async function(event) {
             data.wins = 0;
         }
 
-        fb_write('Leaderboards/' + currentGame + "/" + sessionStorage.getItem("UID"), data);
+        await fb_write('Leaderboards/' + currentGame + "/" + sessionStorage.getItem("UID"), data);
     }
 
     for (let valueType in event.detail) {

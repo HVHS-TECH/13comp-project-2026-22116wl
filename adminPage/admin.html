@@ -6,13 +6,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="./adminStyle.css">
     
 </head>
 
 <body>
     <header class = 'flexBox'>
-        <a class = "BackButton" href = "index.html"><img src = "Assets/Images/BackIcon.png"></a>
+        <a class = "BackButton" href = "../index.html"><img src = "../Assets/Images/BackIcon.png"></a>
 
         <h1>Admin Settings</h1>
 
@@ -23,16 +24,17 @@
         <div id = "adminUserSettings" style = "display: none;">
             
             <h2></h2>
+            <p id = "isAdmin">This user is an admin</p>
             <img>
-
+            
             <div id = "adminNameChangeBox">
                 <div></div>
                 <input>
-                <button onclick = "changeName()"><img src = "./Assets/Images/EditIcon.png"></button>
+                <button onclick = "changeNameClicked()"><img src = "../Assets/Images/EditIcon.png"></button>
             </div>
 
-            <button>Ban User</button>
-            <button>Delete Account</button>
+            <button id = "delete" onclick = "deleteAccount(sessionStorage.getItem('focusedUser'))">Delete Account</button>
+            <button id = "ban" onclick = "banAccount(sessionStorage.getItem('focusedUser'))">Ban User</button>
         </div>
 
 
@@ -40,8 +42,8 @@
             <h2>Users</h2>
 
             <button id = "template" class = "listUser" style = "display: none !important;" onclick="focusUser(this.id)">
-                <img src = "https://lh3.googleusercontent.com/a/ACg8ocL27mRS_j07ony9Yvdh5OGC8mjsilsCv3r5xkmatQOSR943pnKU=s96-c">
-                <p id = "displayName">Wilfred Leicester</p>
+                <img>
+                <p id = "displayName"></p>
             </button>
 
             <div id = "scrollingUserList">
