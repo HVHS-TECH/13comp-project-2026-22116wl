@@ -1,4 +1,4 @@
-import { fb_read, fb_write, getAuth, valChanged } from '../fb.mjs';
+import { fb_read, fb_write, getAuth, fb_valChanged } from '../fb.mjs';
 import { setName, banAccount, deleteAccount } from '../accountFunctions.mjs';
 
 
@@ -60,7 +60,7 @@ async function chooseFocusedUser() {
 async function pageLoad() {
     //when data in /users/ changes, redraw list
     //this function also runs on page load (don't know why but it saves me having to call it on two separate occasions)
-    await valChanged("/Users/", drawUserList);
+    await fb_valChanged("/Users/", drawUserList);
     
     const USER_FOCUS_LOAD_TIMEOUT = 1100;
     

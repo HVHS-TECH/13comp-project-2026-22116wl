@@ -1,76 +1,14 @@
-var currentGame = sessionStorage.getItem('game');
-console.log(currentGame);
 
-//import game metadata, such as game name in text 
-const metaData = await import(`./Games/${currentGame}/gameMetaData.mjs`);
-
-document.querySelector("h1").innerHTML = metaData.gameName;
-
-// use game metadata to set background colour (of window)
-console.log(metaData);
-if (metaData.bg == 1) {
-    document.getElementById('gameSpace').style.backgroundColor = "black";
-} else {
-    document.getElementById('gameSpace').style.backgroundColor = "white";
-}
-
-import { fb_initialise, fb_authenticate, fb_readSorted, fb_read, fb_write, fb_valChanged, valChanged } from "./fb.mjs";
+import { fb_authenticate, fb_readSorted, fb_read, fb_write, fb_valChanged } from "./fb.mjs";
 window.fb_authenticate = fb_authenticate;
 
+// define some global varuables
+let currentGame;
 
-// Detect element added, if element is p5 canvas then add it to the div
-const observer = new MutationObserver((mutationsList) => {
-    for (const mutation of mutationsList) {
-        for (const element of mutation.addedNodes) {
-            //if element is the p5 play canvas
-            if (element.className == "p5-maxed") {
-                document.getElementById('gameSpace').appendChild(element);
 
-                //disconnect function after canvas added
-                observer.disconnect();
-            }
-        }
-    }
-});
 
-observer.observe(document.body, {childList: true, subtree: true});
-//when game finishes fire this event in order to update the score
-window.addEventListener('scoreChanged', async function(event) {
-    //valueType is the key of the value passed in, such as "highScore", "Losses" or "Wins"
-    var leaderboardData = await fb_read('Leaderboards/' + currentGame + "/" + sessionStorage.getItem("UID"));
 
-    // Create leaderboard entry for the player
-    if (leaderboardData == null) {
-        var data = {
-            highScore: event.detail.highScore,
-            displayName: await fb_read("Users/" + sessionStorage.getItem('UID') + "/displayName")
-        }
-
-        //hard coded other values for specific games set here
-        if (currentGame == "guess_the_number") {
-            data.losses = 0;
-            data.wins = 0;
-        }
-
-        await fb_write('Leaderboards/' + currentGame + "/" + sessionStorage.getItem("UID"), data);
-    }
-
-    for (let valueType in event.detail) {
-
-        if (valueType == "highScore") {
-            const oldVal = leaderboardData[valueType];
-
-            //if we are updating the high score value, then chedck whether it is over the old one. If not then don't update it
-            if (event.detail.valueType < oldVal) {
-                continue;
-            }
-        }
-
-        console.log('writing');
-        await fb_write("Leaderboards/" + currentGame + "/" + sessionStorage.getItem("UID") + "/" + valueType, event.detail[valueType]);
-    }
-});
-
+// read the database and draw the leaderboard
 async function drawLeaderboard() {
     var leaderboard = await fb_readSorted("Leaderboards/" + currentGame, "highScore");
 
@@ -109,11 +47,88 @@ async function drawLeaderboard() {
 }
 
 
-drawLeaderboard();
 
 
-//Detect changes in the leaderboard for the current game, and then redraw the leaderboard
-await valChanged("/Leaderboards/" + currentGame, function(change) {
-    drawLeaderboard();
-    //document.getElementById('currentScore').innerHTML = score;
-});
+// functions to run when the page loads
+async function pageLoad() {
+    currentGame = sessionStorage.getItem('game');
+    
+    //import game metadata, such as game name in text 
+    const META_DATA = await import(`./Games/${currentGame}/gameMetaData.mjs`);
+    
+    // use game metadata to set background colour (of window)
+    if (META_DATA.bg == 1) {
+        document.getElementById('gameSpace').style.backgroundColor = "black";
+    } else {
+        document.getElementById('gameSpace').style.backgroundColor = "white";
+    }
+    
+    document.querySelector("h1").innerHTML = META_DATA.gameName;
+    
+    
+    // Detect element added, if element is p5 canvas then add it to the div
+    const OBSERVER = new MutationObserver((mutationsList) => {
+        for (const mutation of mutationsList) {
+            for (const element of mutation.addedNodes) {
+                //if element is the p5 play canvas
+                if (element.className == "p5-maxed") {
+                    document.getElementById('gameSpace').appendChild(element);
+                    
+                    //disconnect function after canvas added
+                    OBSERVER.disconnect();
+                }
+            }
+        }
+    });
+    
+    OBSERVER.observe(document.body, {childList: true, subtree: true});
+    
+
+   
+
+
+    //when game finishes fire this event in order to update the score
+    window.addEventListener('scoreChanged', async function(event) {
+        //valueType is the key of the value passed in, such as "highScore", "Losses" or "Wins"
+        var leaderboardData = await fb_read('Leaderboards/' + currentGame + "/" + sessionStorage.getItem("UID"));
+
+        // Create leaderboard entry for the player
+        if (leaderboardData == null) {
+            var data = {
+                highScore: event.detail.highScore,
+                displayName: await fb_read("Users/" + sessionStorage.getItem('UID') + "/displayName")
+            }
+
+            //hard coded other values for specific games set here
+            if (currentGame == "guess_the_number") {
+                data.losses = 0;
+                data.wins = 0;
+            }
+
+            await fb_write('Leaderboards/' + currentGame + "/" + sessionStorage.getItem("UID"), data);
+        }
+
+        for (let valueType in event.detail) {
+
+            if (valueType == "highScore") {
+                const oldVal = leaderboardData[valueType];
+
+                //if we are updating the high score value, then chedck whether it is over the old one. If not then don't update it
+                if (event.detail.valueType < oldVal) {
+                    continue;
+                }
+            }
+
+            console.log('writing');
+            await fb_write("Leaderboards/" + currentGame + "/" + sessionStorage.getItem("UID") + "/" + valueType, event.detail[valueType]);
+        }
+    });
+    
+
+    //Detect changes in the leaderboard for the current game, and then redraw the leaderboard
+    await fb_valChanged("/Leaderboards/" + currentGame, function(change) {
+        drawLeaderboard();
+    });
+};
+
+pageLoad();

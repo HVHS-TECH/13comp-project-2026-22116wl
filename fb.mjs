@@ -51,8 +51,6 @@ async function fb_authenticate() {
             PROVIDER.setCustomParameters({
                 prompt: 'select_account'
             });
-            
-            var userData;
     
             try {
                 const result = await signInWithPopup(AUTH, PROVIDER);
@@ -222,21 +220,10 @@ async function fb_readSorted(path, sortkey) {
     });
 }
 
+// Run a function whenevr a value changes in the DB
+// path = /path/to/value - the value it detects a change under
+// callback = function to run upon change
 async function fb_valChanged(path, callback) {
-    const dbReference = ref(fb_db, path);
-    console.log(path);
-    
-    onChildChanged(dbReference, (snapshot) => {
-        /*
-        const newScore = snapshot.val();
-        const playerKey = snapshot.key;
-        */
-
-        callback(snapshot.key);
-    });
-}
-
-async function valChanged(path, callback) {
     const QUERY = query(ref(fb_db, path), orderByChild(`highScore`), limitToLast(500));
 
     onValue(QUERY, (snapshot) => {
@@ -250,4 +237,4 @@ async function valChanged(path, callback) {
 
 
 
-export { fb_initialise, fb_authenticate, fb_authChanged, fb_logout, fb_write, fb_read, fb_update, fb_readSorted, fb_delete, fb_valChanged, getAuth, valChanged };
+export { fb_initialise, fb_authenticate, fb_authChanged, fb_logout, fb_write, fb_read, fb_update, fb_readSorted, fb_delete, fb_valChanged, getAuth };

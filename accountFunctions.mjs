@@ -1,18 +1,32 @@
+/****** 
+ * Written by Wilfred Leicester 2026
+ * This module contains functions relating to user accounts and registration on the site
+******/
+
 import { fb_write, fb_read , fb_logout } from "./fb.mjs";
 
-async function setName(UID, name) {
-    //when changing another user's name as an admin they can pass in a UID to 
-    if (UID == null) {
-        UID = sessionStorage.getItem('UID');
-        name = document.getElementById('nameChangeBox').querySelector('input').value;
+
+function isNameInvalid(name) {
+    if (name.length < 5) {
+        return false;  
     }
-    
-    if (name == "") {
-        alert('enter a name');
+
+    return true;
+}
+
+
+// Change the users display name in the database
+// UID = users who's name is being changed
+// name = user's new name
+async function setName(UID, name) {
+
+    if (isNameInvalid(name)) {
+        alert('Name cannot be less than 5 characters');
         return;
     }
     
     
+    // Change display name leaderboard entires in all games for this user
     var leaderboards = await fb_read("/Leaderboards/");
     for (let game in leaderboards) {
         if (leaderboards[game][UID] != null) {
@@ -23,12 +37,15 @@ async function setName(UID, name) {
     fb_write('/Users/' + UID + '/displayName', name);
 }
 
+
+// Log the user out of their google auth, and reconfigure the user interface to a logged out state
 async function logOut() {
-    fb_logout();
-    
+    await fb_logout();
+
+    sessionStorage.removeItem('UID');
+
     document.querySelector('.AccountSettings').style.right = "-500px";
     document.querySelector('.AccountSettings').style.display = "none";
-    document.getElementById('loginBlur').style.display = 'block';
     
     document.getElementById('loginBlur').style.display = 'block';
     document.getElementById('landing').style.display = 'block';
@@ -40,6 +57,9 @@ async function logOut() {
 }
 
 
+// Delete a user's account from the databse
+// UID = ID of the player to be deleted
+// _prompt = true/false of whether the website should prompt them "Are you sure?"
 async function deleteAccount(UID, _prompt) {
     if (_prompt != false) {
         var _delete = prompt('Delete Account?');
@@ -50,18 +70,10 @@ async function deleteAccount(UID, _prompt) {
 
     console.log(UID);
     
-
-    //if deleting self then log out
-    if (UID == sessionStorage.getItem('UID')) {
-        logOut();
-        console.log('deleting self');
-
-        sessionStorage.removeItem('UID');
-        setTimeout(function() {
-            window.location.href = "./index.html";
-        }, 1000)
-    }
+    //If an admin is calling this function (For Admin page UI)
+    sessionStorage.removeItem('focusedUser');    
     
+    // Delete all leaderboard entires of this user for each game
     var leaderboards = await fb_read("/Leaderboards/");
     for (let game in leaderboards) {
         if (leaderboards[game][UID] != null) {
@@ -69,23 +81,31 @@ async function deleteAccount(UID, _prompt) {
         }
     }    
     
-    fb_write("/Users/" + UID, null);
+    await fb_write("/Users/" + UID, null);
 
-    //For if an admin is calling this function on someone else
-    sessionStorage.removeItem('focusedUser');
+
+    //if deleting OWN account, then log out
+    if (UID == sessionStorage.getItem('UID')) {
+        window.location.href = "./index.html";
+        logOut();
+        console.log('deleting self');
+    }
 }
 
+
+// Add this user to list of banned users
+// UID = User to ban
 async function banAccount(UID) {
-    var _delete = prompt('Permenantly Ban This Account?');
-    if (_delete == null) {
+
+    // Double check whether to go ahead
+    if (prompt('Permenantly Ban This Account?') == null) {
         return;
     }
 
-    deleteAccount(UID, false);
-    fb_write('/bannedUsers/' + UID, true);
+    sessionStorage.removeItem('focusedUser'); //For if an admin is calling this function on someone else
 
-    //For if an admin is calling this function on someone else
-    sessionStorage.removeItem('focusedUser');
+    await deleteAccount(UID, false);
+    await fb_write('/bannedUsers/' + UID, true);
 }
 
 export { setName, deleteAccount, banAccount, logOut };

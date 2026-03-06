@@ -3,43 +3,11 @@ console.log('script connected');
 // Base written by Wilfred Leicester, Term 2 2025, edited and changed throughout in 2026
 /**************************************************************/
 
-import { fb_initialise, fb_authenticate, fb_logout, fb_read, fb_write, fb_update, fb_readSorted, fb_delete, getAuth } from './fb.mjs';
-import { setName, banAccount, deleteAccount, logOut } from "./accountFunctions.mjs";
+import { fb_authenticate, fb_read, fb_write, getAuth } from './fb.mjs';
+import { setName, deleteAccount, logOut } from "./accountFunctions.mjs";
 
 
-// check if user is logged in
-async function isUserLoggedIn() {
-    console.log(sessionStorage.getItem("UID"));
-    if (sessionStorage.getItem('UID') != null) {
-        return(true);
-    } else {
-        return(false);
-    }
-}
-
-if (isUserLoggedIn() == true) {
-    login(false); //log in without asking for authentication
-} else {
-    document.getElementById('loginBlur').style.display = "block"; // hide side by putting up blur
-}
-
-
-
-const elements = document.getElementsByClassName('gameIcon'); 
-for (let i = 0; i < elements.length; i++) {
-	const element = elements[i];
-	
-	element.addEventListener("click", () => {
-		sessionStorage.setItem('game', element.id);
-    });
-
-	element.querySelector("img").src = "./Games/" + element.id + "/Icon.png";
-
-	const metaData = await import(`./Games/${element.id}/gameMetaData.mjs`);
-	element.querySelector(".gameName").innerHTML = metaData.gameName;
-}
-
-
+// Function to toggle the account settings panel popout
 function toggleSettings() {
     const panel = document.querySelector('.AccountSettings');
 
@@ -76,6 +44,7 @@ function toggleSettings() {
         }, DURATION);
     }
 }
+
 
 // configure page for a logged in user
 async function login(authenticate) {
@@ -116,15 +85,14 @@ async function login(authenticate) {
 }
 
 
+// returns an error message if false, true if true
 async function checkRegistrationEligibility(UID) {
     if (await fb_read("Users/" + UID) != null) {
-        alert("User already exists!");
-        return false;
+        return 'exists';
     }
     
     if (await fb_read('/bannedUsers/' + UID) != null) {
-        alert('This account is banned');
-        return false;
+        return 'banned';
     }
 
     //if passed the two checks, return true
@@ -137,7 +105,13 @@ async function register() {
     var auth = await fb_authenticate();
     const UID = auth.user.uid;
 
-    if (checkRegistrationEligibility(UID) == false) {
+    let registrationEligibility = checkRegistrationEligibility(UID);
+
+    if (registrationEligibility == 'exists') {
+        alert("User already exists!");
+        return;
+    } else if (registrationEligibility == 'banned') {
+        alert('This account is banned');
         return;
     }
 
@@ -154,7 +128,6 @@ async function register() {
 async function createAccount() {
     const AUTH = getAuth();
 
-    //create userData array
     var userData = {};
 
     //add google auth data which is to be stored
@@ -169,33 +142,75 @@ async function createAccount() {
         userData[field.id] = field.querySelector('input').value;
     }
 
-    //Create User in DB
     fb_write("Users/" + AUTH.currentUser.uid, userData);
 
-    //enter site
+    //enter website
     login(false);
 }
 
 
-
-document.getElementById('nameChangeBox').querySelector('input').addEventListener('focusout', (event) => {
-    setName();
-});
-
-document.onkeypress = function (event) {
-    if (event.key == "Enter") {
-        document.getElementById('nameChangeBox').querySelector('input').blur();
-    }
-};
-
-async function changeName() {
+// 
+async function changeNameClicked() {
     document.getElementById('nameChangeBox').querySelector('input').focus();
 }
 
 
+
+async function isUserLoggedIn() {
+    console.log(sessionStorage.getItem("UID"));
+    if (sessionStorage.getItem('UID') != null) {
+        console.log('logged in');
+        return(true);
+    } else {
+        return(false);
+    }
+}
+
+
+
+// functions to run and listners to create when the page loads
+async function pageLoad() {
+    document.getElementById('nameChangeBox').querySelector('input').addEventListener('focusout', () => {
+        let newName = document.getElementById('nameChangeBox').querySelector('input').value;
+        setName(sessionStorage.getItem('UID'), newName);
+    });
+    
+    document.onkeypress = function (event) {
+        if (event.key == "Enter") {
+            document.getElementById('nameChangeBox').querySelector('input').blur();
+        }
+    };
+
+
+    // add links to and configure each game on the home page
+    const elements = document.getElementsByClassName('gameIcon'); 
+    for (let i = 0; i < elements.length; i++) {
+        const element = elements[i];
+        
+        element.addEventListener("click", () => {
+            sessionStorage.setItem('game', element.id);
+        });
+
+        element.querySelector("img").src = "./Games/" + element.id + "/Icon.png";
+
+        const metaData = await import(`./Games/${element.id}/gameMetaData.mjs`);
+        element.querySelector(".gameName").innerHTML = metaData.gameName;
+    }
+    
+    if (await isUserLoggedIn()) {
+        console.log('logged in function');
+        login(false); //log in without asking for authentication
+    } else {
+        document.getElementById('loginBlur').style.display = "block"; // hide side by putting up blur
+    }
+}
+
+pageLoad();
+
+
 window.createAccount = createAccount;
 window.deleteAccount = deleteAccount;
-window.changeName = changeName;
+window.changeNameClicked = changeNameClicked;
 window.register = register;
 window.logOut = logOut;
 window.login = login;
