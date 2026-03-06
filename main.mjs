@@ -11,6 +11,8 @@ import { setName, deleteAccount, logOut } from "./accountFunctions.mjs";
 function toggleSettings() {
     const panel = document.querySelector('.AccountSettings');
 
+    // true or false to determine whether or not we are showing or hiding the panle
+    // if the display is set to none then is hidden and we are showing
     var goingOut = panel.style.display == "none"
     if (goingOut == true) {
         panel.style.display = "block";
@@ -38,6 +40,7 @@ function toggleSettings() {
         fill: 'forwards'
     })
 
+    // if going in then hide panel after finishing the animation
     if (goingOut == false) {
         setTimeout(function() {
             panel.style.display = 'none';
@@ -50,7 +53,6 @@ function toggleSettings() {
 async function login(authenticate) {
     //autenticate parameter is used for logging in after registraion. Run function after registration without doing another auth popup
     if (authenticate != false) {
-
         var auth = await fb_authenticate();
 
         if (await fb_read('Users/' + (auth.user.uid)) == null) {
@@ -105,7 +107,7 @@ async function register() {
     var auth = await fb_authenticate();
     const UID = auth.user.uid;
 
-    let registrationEligibility = checkRegistrationEligibility(UID);
+    let registrationEligibility = await checkRegistrationEligibility(UID);
 
     if (registrationEligibility == 'exists') {
         alert("User already exists!");
@@ -196,7 +198,7 @@ async function pageLoad() {
         const metaData = await import(`./Games/${element.id}/gameMetaData.mjs`);
         element.querySelector(".gameName").innerHTML = metaData.gameName;
     }
-    
+
     if (await isUserLoggedIn()) {
         console.log('logged in function');
         login(false); //log in without asking for authentication

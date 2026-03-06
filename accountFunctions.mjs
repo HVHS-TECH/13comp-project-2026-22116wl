@@ -8,10 +8,10 @@ import { fb_write, fb_read , fb_logout } from "./fb.mjs";
 
 function isNameInvalid(name) {
     if (name.length < 5) {
-        return false;  
+        return true; 
     }
 
-    return true;
+    return false;
 }
 
 
