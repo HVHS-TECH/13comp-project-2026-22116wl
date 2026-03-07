@@ -299,6 +299,14 @@ header #leftButtonSpace {
 	display: flex;
 }
 
+.p5Canvas {
+	max-height: 100%;
+}
+
+.p5-maxed { 
+	max-height: 100%;
+}
+
 .p5-fullscreen { 
 	margin-right: auto;
 

@@ -7,7 +7,7 @@ import { fb_write, fb_read , fb_logout } from "./fb.mjs";
 
 
 function isNameInvalid(name) {
-    if (name.length < 5) {
+    if (name.length < 3) {
         return true; 
     }
 
@@ -21,7 +21,7 @@ function isNameInvalid(name) {
 async function setName(UID, name) {
 
     if (isNameInvalid(name)) {
-        alert('Name cannot be less than 5 characters');
+        alert('Name cannot be less than 3 characters');
         return;
     }
     

@@ -1,21 +1,38 @@
-
-
-var scene = "lobby";
+var scene = "MainLobby";
+var gameStarted = false;
 
 function setup() {
     cnv = new Canvas("1:1");
-    scene = "lobby";
+    scene = "MainLobby";
+
+    player1 = new sprit
 }
 
 function draw() {
-    if (scene == "lobby") {
-        Lobby()
+    background('#dedede');
+
+    if (scene == "MainLobby") {
+        MainLobby();
+    } else if (scene == "Game") {
+        Game();
     }
 }
 
 
-//THIS FUNCTION WAS COPIED IN FROM LAST YEAR
+// found this code online  https://editor.p5js.org/Kubi/sketches/IJp2TXHNJ
+function hexToRgb(hex) {
+    hex = hex.replace('#', '');
 
+    var bigint = parseInt(hex, 16);
+
+    var r = (bigint >> 16) & 255;
+    var g = (bigint >> 8) & 255;
+    var b = bigint & 255;
+
+    return [r, g, b];
+}
+
+//THIS FUNCTION WAS COPIED IN FROM LAST YEAR
 // draw a button in p5 with various parameters 
 // buttonFunction = code ran when button clicked, no parameters no return
 function drawButton(x, y, w, h, buttonText, buttonFunction, fillColour, hoverColour, borderThickness) {
@@ -57,6 +74,20 @@ function win() {
     }));
 }
 
-function Lobby() {
-    
+function MainLobby() {
+    textSize(70);
+    fill('#000000');
+    textAlign(LEFT);
+    text('Guess the number!', 30, 60);
+
+    drawButton(130, 160, 180, 60, "Create Lobby", function() { scene = "Game" }, '#999999', '#8b4646', 0);
+}
+
+function Game() {
+    textSize(70);
+    fill('#000000');
+    textAlign(LEFT);
+    text('Wilfrdes lobby', (cnv.w/2)-250, 60);
+
+    drawButton(50, 50, 75, 75, "Return", function() { scene = "MainLobby" }, '#999999', '#8b4646', 0);
 }
