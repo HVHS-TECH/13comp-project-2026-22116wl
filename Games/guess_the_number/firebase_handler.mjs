@@ -12,6 +12,7 @@ async function joinLobby(event) {
 
 
     //when the two match it means a new lobby is being created
+
     if (HOST_UID == PLAYER_UID) {
         fb_write("/Lobbies/guess_the_number/" + PLAYER_UID, {
             mysteryNumber: 0,
@@ -19,12 +20,14 @@ async function joinLobby(event) {
                 player1: {
                     UID: PLAYER_UID,
                     displayName: await fb_read("Users/" + PLAYER_UID + "/displayName"),
+                    pfp: await fb_read("Users/" + PLAYER_UID + "/pfp"),
                     guess: 0
                 },
 
                 player2: {
                     UID: "",
                     displayName: "",
+                    pfp: "",
                     guess: 0
                 }
             }
@@ -33,6 +36,7 @@ async function joinLobby(event) {
         fb_write("/Lobbies/guess_the_number/" + HOST_UID + "/players/player2", {
             UID: PLAYER_UID,
             displayName: await fb_read("Users/" + PLAYER_UID + "/displayName"),
+            pfp: await fb_read("Users/" + PLAYER_UID + "/pfp"),
             guess: 0
         });
     }
@@ -66,6 +70,7 @@ async function leaveLobby(event) {
             fb_write("/Lobbies/guess_the_number/" + LOBBY_UID + "/players/" + playeri, {
                 UID: "",
                 displayName: "",
+                pfp: "",
                 guess: 0
             });
         }

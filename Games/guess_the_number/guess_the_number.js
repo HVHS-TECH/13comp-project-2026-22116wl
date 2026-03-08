@@ -2,8 +2,19 @@ var scene = "MainLobby";
 var gameStarted = false;
 
 var lobbies = {}
-
 var lobbyData = {}
+
+
+var pfps = {
+    player1: "",
+    player2: "",
+}
+
+
+function preload() {
+    defaultPFP = loadImage("../../Assets/Images/notLoggedIn.png");
+
+}
 
 function setup() {
     cnv = new Canvas("1:1");
@@ -95,10 +106,16 @@ function joinLobby(LobbyUID) {
 
     sessionStorage.setItem('Lobby', LobbyUID);
 
-    //there is a small wait until lobbyData is set correctly by the firebase update listener. 145 ms seems to work well
-    setTimeout(function()  {
-        scene = "Game";
-    }, 145);
+    // There is a small wait until lobbyData is set correctly by the firebase update listener, so set a loop waiting for the lobby data to load in
+    // Exit the loop once it has loaded in
+    let joinWaitLoop = setInterval(() => {
+        if (Object.keys(lobbyData).length > 0) {
+            scene = "Game";
+            clearInterval(joinWaitLoop);
+            console.log('joined');
+            return;
+        }
+    }, 150);
 }
 
 function leaveLobby(LobbyUID) {
@@ -150,20 +167,48 @@ function Game() {
     }, 0, '#999999', '#8b4646');
 
 
+
     // two and five sevenths of the horizontal width seems to be a good spacing
-    const PLAYER_1_XPOS = cnv.w/7*2;
-    const PLAYER_2_XPOS = cnv.w/7*5 ;
+    const X_POS = {
+        player1: cnv.w/7*2,
+        player2: cnv.w/7*5,
+    }
 
-    const PFP_YPOS = cnv.h/5*2
+    const PFP_YPOS = cnv.h/5*1.8
+    const PFP_RADIUS = 240
 
-    circle(PLAYER_1_XPOS, PFP_YPOS, 240);
-    circle(PLAYER_2_XPOS, PFP_YPOS, 240);
 
-    textSize(30);
-    textAlign(CENTER);
-    fill("#000000");
-    text(lobbyData.players.player1.displayName, PLAYER_1_XPOS, PFP_YPOS + 180);
-    text(lobbyData.players.player2.displayName, PLAYER_2_XPOS, PFP_YPOS + 180);
+    // Draw in the PFP and the username for each player
+    for (let playeri in pfps) {
+
+
+        var pfpIMG;
+
+        if (pfps[playeri] != "") {
+            // Player X is in the lobby
+            pfpIMG = pfps[playeri];
+        } else {
+            // Player X is not in the lobby - set default pfp
+            pfpIMG = defaultPFP;
+        }
+
+
+        // Create clip for the pfp (to make it a circle)
+        drawingContext.save();
+        drawingContext.beginPath();
+        drawingContext.arc(X_POS[playeri], PFP_YPOS, (PFP_RADIUS/2), 0, 2*Math.PI);
+        drawingContext.clip();
+
+        image(pfpIMG, X_POS[playeri] - (PFP_RADIUS/2), PFP_YPOS - (PFP_RADIUS/2), PFP_RADIUS, PFP_RADIUS);
+        drawingContext.restore();
+    
+        textSize(30);
+        textAlign(CENTER);
+        fill("#000000");
+        text(lobbyData.players[playeri].displayName, X_POS[playeri], PFP_YPOS + 180);
+    }
+
+
 
     textSize(50);
     textStyle(BOLD);
@@ -183,6 +228,16 @@ window.addEventListener('lobbyAdded', function(event) {
 
 window.addEventListener('lobbyChanged', function(event) {
     lobbyData = event.detail.lobby;
+    pfp1 = loadImage(lobbyData.players.player1.pfp);
+
+    for (let i in lobbyData.players) {
+        const PFP = lobbyData.players[i].pfp
+        if (PFP != "") {
+            pfps[i] = loadImage(PFP);
+        } else {
+            pfps[i] = "";
+        }
+    }
 });
 
 // If a player closes the window whilst in a lobby
