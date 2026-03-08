@@ -8,9 +8,8 @@ async function drawUserList(users) {
     
     document.getElementById('scrollingUserList').innerHTML = "";
     
-    for (let i in users) {
-        let user = users[i][1];
-        let UID = users[i][0];
+    for (let UID in users) {
+        let user = users[UID];
         
         var userEntry = template.cloneNode(true);
         userEntry.querySelector('p').innerHTML = user.displayName;
@@ -60,7 +59,7 @@ async function chooseFocusedUser() {
 async function pageLoad() {
     //when data in /users/ changes, redraw list
     //this function also runs on page load (don't know why but it saves me having to call it on two separate occasions)
-    await fb_valChanged("/Users/", drawUserList);
+    await fb_valChanged("/Users/", drawUserList, 'displayName');
     
     const USER_FOCUS_LOAD_TIMEOUT = 1100;
     

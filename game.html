@@ -1,4 +1,4 @@
-<!-- MOST of this code was written last yeart, with small minor changes throughout this year -->
+<!-- Most of this code was written last yeart, with changes made this year throughout -->
 
 <!DOCTYPE html>
 
@@ -12,6 +12,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
         <!-- P5.js & P5.play *****************************-->
+
+        
         <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.8.0/p5.js" integrity="sha512-bzpp8klYroR6PFgL3RJ+VkvY5hJna7Zd38OA56peUDHSNQpSiN9lDQVnMYtcw7hoAVhbR6mAOdH+ymzg1o+G0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.8.0/addons/p5.sound.js" integrity="sha512-TU9AWtV5uUZPX8dbBAH8NQF1tSdigPRRT82vllAQ1Ke28puiqLA6ZVKxtUGlgrH6yWFnkKy+sE6luNEGH9ar0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
         <script src="https://p5play.org/v3/planck.min.js"></script>
@@ -25,7 +27,7 @@
         <script type = "module" src="./gamePageScript.mjs"></script>
 
         <header class = 'flexBox'>
-            <a class = "BackButton" href = "index.html"><img src = "Assets/Images/BackIcon.png"></a>
+                <a class = "BackButton" href = "index.html"><img src = "Assets/Images/BackIcon.png"></a>
 
             <h1></h1>
 
@@ -48,13 +50,23 @@
         
         <!-- Create a script tag and load in the game from the folder -->
         <script>
+        
             const game = sessionStorage.getItem('game');
+            
             if (game != null) {
-                const script = document.createElement('script');
+                let script = document.createElement('script');
                 script.src = 'Games/' + game + '/' + game + '.js';
-                
                 document.head.appendChild(script);
                 
+                
+                // GTN game has another script that must be laoded in for handling the FB communication
+                if (game == 'guess_the_number') {
+                    let fb_script = document.createElement('script');
+                    fb_script.setAttribute('type', 'module');
+                    fb_script.src = 'Games/' + game + '/firebase_handler.mjs';
+                    document.head.appendChild(fb_script);
+                }
+
                 console.log("Successfully added game tag");
             } else {
                 console.log("No game in session storage");

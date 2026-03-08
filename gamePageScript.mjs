@@ -128,7 +128,7 @@ async function pageLoad() {
     //Detect changes in the leaderboard for the current game, and then redraw the leaderboard
     await fb_valChanged("/Leaderboards/" + currentGame, function(change) {
         drawLeaderboard();
-    });
+    }, 'highScore');
 };
 
 pageLoad();

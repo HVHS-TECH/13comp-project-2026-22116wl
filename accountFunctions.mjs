@@ -32,7 +32,24 @@ async function setName(UID, name) {
         if (leaderboards[game][UID] != null) {
             fb_write("/Leaderboards/" + game + "/" + UID + "/displayName", name);
         }
-    }    
+    }
+
+    // Change display name for any lobbies player might be in
+    var lobbies = await fb_read("/Lobbies/");
+    for (let game in lobbies) {
+        if (game == 'placeholder') { continue; } //skip the placeholder
+
+        for (let lobbyUID in lobbies[game]) {
+            let lobby = lobbies[game][lobbyUID];
+            
+            //loop through each player in the lobby
+            for (let playeri in lobby.players) {
+                if (lobby.players[playeri].UID == UID) {
+                    fb_write("/Lobbies/" + game + "/" + lobbyUID + "/players/" + playeri + "/displayName", name);
+                }
+            }
+        }
+    }
 
     fb_write('/Users/' + UID + '/displayName', name);
 }
