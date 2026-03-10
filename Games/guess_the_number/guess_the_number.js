@@ -4,35 +4,28 @@ var gameStarted = false;
 var lobbies = {}
 var lobbyData = {}
 
-
-var pfps = {
-    player1: "",
-    player2: "",
-}
-
-
 function preload() {
     defaultPFP = loadImage("../../Assets/Images/notLoggedIn.png");
-
 }
 
 function setup() {
     cnv = new Canvas("1:1");
     scene = "MainLobby";
-
-    //player1 = new sprit
 }
 
 function draw() {
     background('#dedede');
-
-    if (scene == "MainLobby") {
-        MainLobby();
-    } else if (scene == "Game") {
-        Game();
+    
+    if (scene == "waiting" || scene == "notStarted" || scene == "player1Turn" || scene == "player2Turn" || scene == "won") {
+        Game(); //draw in always visible things, such as the two PFPS, usernames, and the "vs" in between
     }
+    
+    if (scene == "MainLobby") { MainLobby(); }
+    if (scene == 'notStarted') { NotStarted(); }
+    if (scene == 'waiting') { Waiting(); }
+    if (scene == 'player1Turn' || scene == 'player2Turn') { PlayerTurn(); }
 }
-
+ 
 
 // found this code online  https://editor.p5js.org/Kubi/sketches/IJp2TXHNJ
 function hexToRgb(hex) {
@@ -50,7 +43,7 @@ function hexToRgb(hex) {
 //THIS FUNCTION WAS COPIED IN FROM LAST YEAR - with small tweaks made this year
 // draw a button in p5 with various parameters 
 // buttonFunction = code ran when button clicked, no parameters no return
-function drawButton(x, y, w, h, buttonText, buttonFunction, borderThickness, fillColour, hoverColour) {
+function drawButton(x, y, w, h, buttonText, buttonFunction, borderThickness, fillColour, hoverColour, _textSize) {
     // only draw the background if a fill colour is passed in
     if (fillColour != null) {
         fill(fillColour);
@@ -80,11 +73,23 @@ function drawButton(x, y, w, h, buttonText, buttonFunction, borderThickness, fil
     
     rect(x - w/2, y - h/2, w, h); // draw button
 
+    if (_textSize != null) {
+        textSize(_textSize);
+    } else {
+        textSize(sqrt(w) * 1.5);
+    }
 
-    textSize(sqrt(w) * 1.5);
     fill('#FFFFFF');
     textAlign(CENTER, CENTER);
     text(buttonText, x, y);
+}
+
+function startGame() {
+    window.dispatchEvent(new CustomEvent('startGame', {
+        detail: { 
+            lobbyID: sessionStorage.getItem('Lobby')
+        }
+    }));
 }
 
 function win() {
@@ -92,6 +97,16 @@ function win() {
     window.dispatchEvent(new CustomEvent('scoreChanged', {
         detail: { 
             highScore: highScore
+        }
+    }));
+}
+
+function makeGuess(_guess) {
+    window.dispatchEvent(new CustomEvent('makeGuess', {
+        detail: {
+            lobby: sessionStorage.getItem('Lobby'),
+            playerID: sessionStorage.getItem("UID"),
+            guess: _guess
         }
     }));
 }
@@ -108,25 +123,42 @@ function joinLobby(LobbyUID) {
 
     // There is a small wait until lobbyData is set correctly by the firebase update listener, so set a loop waiting for the lobby data to load in
     // Exit the loop once it has loaded in
+
+    /*
     let joinWaitLoop = setInterval(() => {
         if (Object.keys(lobbyData).length > 0) {
-            scene = "Game";
+            //scene = "Game";
             clearInterval(joinWaitLoop);
             console.log('joined');
             return;
         }
     }, 150);
+    */
 }
 
-function leaveLobby(LobbyUID) {
-    scene = "MainLobby"
 
-    window.dispatchEvent(new CustomEvent('leaveLobby', {
-        detail: {
-            lobbyUID: LobbyUID,
-            playerUID: sessionStorage.getItem('UID'),
-        }
-    }));
+// req is whether or not to send a request to the db - used as if a host leaves the secondary player shopuldn't send another leave request which could overwrite the deleting of the lobby
+// Elaboration if the host leave the lobby is deleted, but if the secondary player sends a request it only overwrites the player 2 data.
+// Trying to overwrite the player2 data after the lobby is deleted results in a new empty lobby with only player 2 data which causes problems
+// Just trust it it's useful
+function leaveLobby(req) {
+    scene = "MainLobby";
+    const LOBBY_ID = sessionStorage.getItem('Lobby');
+    sessionStorage.removeItem('Lobby');
+
+    console.log(sessionStorage.getItem('Lobby'));
+
+    if (req != false) {
+        window.dispatchEvent(new CustomEvent('leaveLobby', {
+            detail: {
+                lobby: lobbyData,
+                lobbyID: LOBBY_ID,
+                playerUID: sessionStorage.getItem('UID'),
+            }
+        }));
+    }
+    
+    lobbyData = {}
 }
 
 function MainLobby() {
@@ -136,7 +168,7 @@ function MainLobby() {
     textAlign(LEFT);
     text('Guess the number!', 30, 60);
 
-    drawButton(130, 160, 180, 60, "Create Lobby", function() {
+    drawButton(130, 160, 180, 60, "Create Lobby", () => {
         joinLobby(sessionStorage.getItem('UID'));
     }, 0, '#999999');
 
@@ -147,12 +179,34 @@ function MainLobby() {
         // a permanent placeholder is needed under /Lobbies/[game] as firebase cannot store an empty table
         if (lobbyUID == "placeholder") { continue; }
         
-        drawButton(270, 200+((i+1)*60), 450, 80, lobby.players.player1.displayName + "'s Lobby", function() {
+        drawButton(270, 200+((i+1)*60), 450, 80, lobby.players.player1.displayName + "'s Lobby", () => {
             joinLobby(lobbyUID);
         }, 0, "#111111", "#9d1d1d");
 
         i += 1;
     }
+}
+
+
+function NotStarted() {
+
+    if (sessionStorage.getItem('Lobby') == sessionStorage.getItem('UID')) {
+        // Player is the host of their lobby
+        drawButton(cnv.w/2, cnv.h/7*5, 350, 75, "Start Game", startGame, 3, "#999999");
+    } else {
+        // Player is not the host of their lobby
+        textSize(30);
+        fill("#808080");
+        textAlign(CENTER, CENTER);
+        text("Waiting for host to start the game", cnv.w/2, cnv.h/7*5);
+    }
+}
+
+function Waiting() {
+    textSize(30);
+    fill("#808080");
+    textAlign(CENTER, CENTER);
+    text("Waiting for players - 1/2", cnv.w/2, cnv.h/7*5);
 }
 
 function Game() {
@@ -162,8 +216,9 @@ function Game() {
     textAlign(CENTER);
     text(lobbyData.players.player1.displayName + "'s lobby", (cnv.w/2), 60);
 
-    drawButton(50, 50, 75, 75, "Return", function() { 
-        leaveLobby(sessionStorage.getItem('Lobby'))
+    drawButton(50, 50, 75, 75, "Return", () => { 
+        console.log('return');
+        leaveLobby();
     }, 0, '#999999', '#8b4646');
 
 
@@ -179,19 +234,20 @@ function Game() {
 
 
     // Draw in the PFP and the username for each player
-    for (let playeri in pfps) {
+    for (let playeri in lobbyData.players) {
 
 
-        var pfpIMG;
+        var pfpIMG = lobbyData.players[playeri].pfp;
 
-        if (pfps[playeri] != "") {
+        /*
+        if (lobbyData.players[playeri] != "") {
             // Player X is in the lobby
-            pfpIMG = pfps[playeri];
+            pfpIMG = ;
         } else {
             // Player X is not in the lobby - set default pfp
             pfpIMG = defaultPFP;
         }
-
+        */
 
         // Create clip for the pfp (to make it a circle)
         drawingContext.save();
@@ -215,32 +271,78 @@ function Game() {
     text("vs", cnv.w/2, PFP_YPOS);
 }
 
-window.addEventListener('lobbyAdded', function(event) {
-    lobbies = event.detail.lobbies;
-    console.log(lobbies);
+function NotMyTurn() {
+    textSize(30);
+    fill("#808080");
+    textAlign(CENTER, CENTER); 
+    text(lobbyData.players[scene.replace('Turn', "")].displayName + " is guessing", cnv.w/2, cnv.h/7*5);
+}
 
-    console.log("event!");
-    // If the lobby you are in is removed then leave it
-    if (lobbies[sessionStorage.getItem('Lobby')] == null) {
-        leaveLobby(sessionStorage.getItem('Lobby'));
-    }
-});
+function MyTurn() {
+    let guess = 50;
 
-window.addEventListener('lobbyChanged', function(event) {
-    lobbyData = event.detail.lobby;
-    pfp1 = loadImage(lobbyData.players.player1.pfp);
+    const GUESS_BUTTON_HEIGHT = cnv.h/7*5;
+    const BUTTON_OFFSET = 65;
+    text(guess, cnv.w/2, GUESS_BUTTON_HEIGHT);
 
-    for (let i in lobbyData.players) {
-        const PFP = lobbyData.players[i].pfp
-        if (PFP != "") {
-            pfps[i] = loadImage(PFP);
-        } else {
-            pfps[i] = "";
+    drawButton(cnv.w/2 + BUTTON_OFFSET, GUESS_BUTTON_HEIGHT, 50, 50, ">", function() { guess = guess+1; console.log("Increase"); console.log(guess); }, 1, "#888888", null, 25);
+    drawButton(cnv.w/2 - BUTTON_OFFSET, GUESS_BUTTON_HEIGHT, 50, 50, "<", function() { guess -= 1; }, 1, "#888888", null, 25);
+
+    drawButton(cnv.w/2, GUESS_BUTTON_HEIGHT + 50, 100, 50, "Submit Guess", () => { makeGuess(guess); }, 0, "#888888");
+    
+}
+
+// Find which player is taking their turn
+function PlayerTurn() {
+    //Find which player is currently taking their turn
+    for (let playeri in lobbyData.players) {
+        if (scene == (playeri + 'Turn') && lobbyData.players[playeri].UID == sessionStorage.getItem('UID')) {
+            MyTurn();
+            return;
         }
     }
-});
 
-// If a player closes the window whilst in a lobby
-window.addEventListener('beforeunload', (event) => {
-    leaveLobby(sessionStorage.getItem('Lobby'));
-});
+    // If hasn't found that you are taking your turn it will not return from the loop and will reach this point
+    NotMyTurn();
+}
+
+// Listeners to add and functions to run upon game loadup
+function pageLoad() {
+    window.addEventListener('lobbyAdded', function(event) {
+        lobbies = event.detail.lobbies;
+
+        // If the lobby you are in is removed then leave it
+        if (lobbies[sessionStorage.getItem('Lobby')] == null && sessionStorage.getItem('Lobby') != null) {
+            console.log('lobby removed');
+            console.log(sessionStorage.getItem('Lobby'));
+            leaveLobby(false);
+        }
+    });
+    
+    window.addEventListener('lobbyChanged', function(event) {
+        if (event.detail.lobbyUID == sessionStorage.getItem("Lobby")) {
+            lobbyData = event.detail.lobby;
+            scene = lobbyData.status;
+            console.log(scene);
+        
+            for (let i in lobbyData.players) {
+                const PFP = lobbyData.players[i].pfp
+                if (PFP != "") {
+                    //
+                    lobbyData.players[i].pfp = loadImage(lobbyData.players[i].pfp);
+                } else {
+                    // Player 2 is not logged in - set their pfp to the default not logged in pfp
+                    lobbyData.players[i].pfp = loadImage("../../Assets/Images/notLoggedIn.png");
+                }
+            }
+        }
+    });
+    
+    // If a player closes the window whilst in a lobby - leave the lobby
+    window.addEventListener('beforeunload', (event) => {
+        leaveLobby();
+    });
+}
+
+
+pageLoad();
