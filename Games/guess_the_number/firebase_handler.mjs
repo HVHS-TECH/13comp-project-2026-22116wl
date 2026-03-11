@@ -14,6 +14,11 @@ async function joinLobby(event) {
         fb_write("/Lobbies/guess_the_number/" + PLAYER_UID, {
             mysteryNumber: 0,
             status: "waiting",
+            guess_range: {
+                max: 100,
+                min: 0
+            },
+
             players: {
                 player1: {
                     UID: PLAYER_UID,
@@ -54,48 +59,86 @@ async function joinLobby(event) {
 }
 
 async function leaveLobby(event) {
-    const LOBBY_UID = event.detail.lobbyID;
+    const LOBBY_ID = event.detail.lobbyID;
     const PLAYER_UID = event.detail.playerUID;
 
-    const LOBBY = event.detail.lobby;
-
-    console.log(LOBBY_UID);
-
+    
+    
     // If host is leaving, delete lobby
-    if (LOBBY_UID == PLAYER_UID) {
+    if (LOBBY_ID == PLAYER_UID) {
         console.log('host left lobby');
-        fb_write("/Lobbies/guess_the_number/" + LOBBY_UID, null);
+        fb_write("/Lobbies/guess_the_number/" + LOBBY_ID, null);
         return;
     }
-
-    for (let playeri in LOBBY.players) {
-        if (LOBBY.players[playeri].UID == PLAYER_UID) {
-            fb_write("/Lobbies/guess_the_number/" + LOBBY_UID + "/status", 'waiting');
-            fb_write("/Lobbies/guess_the_number/" + LOBBY_UID + "/players/" + playeri, {
-                UID: "",
-                displayName: "",
-                pfp: "",
-                guess: 0
-            });
+    
+    setTimeout(async ()=>{
+        // If host and player leave at the same time then it's possible the second player's request comes in second and it creates a 'half lobby' with nothing except player 2 data
+        let lobby = await fb_read("/Lobbies/guess_the_number/" + LOBBY_ID);
+        if (lobby == null) {
+            return;
         }
-    }
+    
+        for (let playeri in lobby.players) {
+            if (lobby.players[playeri].UID == PLAYER_UID) {
+                fb_write("/Lobbies/guess_the_number/" + LOBBY_ID + "/status", 'waiting');
+                fb_write("/Lobbies/guess_the_number/" + LOBBY_ID + "/players/" + playeri, {
+                    UID: "",
+                    displayName: "",
+                    pfp: "",
+                    guess: 0
+                });
+            }
+        }
+    }, 600);
+}
+
+async function win(lobbyId, winner) {
+    
 }
 
 async function submitGuess(event) {
-    let lobby = await fb_read("Lobbies/guess_the_number/" + event.detail.lobby);
+    const LOBBY = event.detail.lobbyData;
+    const LOBBY_ID = event.detail.lobbyId;
     const GUESS = event.detail.guess;
 
+
+    var player;
     // find player who submitted the guess
-    for (let playeri in lobby.players) {
-        let player = lobby.players[playeri]
-        if (player.UID == event.detail.playerID) {
-            await fb_write('/Lobbies/guess_the_number/' + event.detail.lobby + "/players/" + playeri + "/guess", GUESS);
+    for (let playeri in LOBBY.players) {
+        if (LOBBY.players[playeri].UID == event.detail.playerID) {
+            player = playeri;
         }
     }
+
+    fb_write('/Lobbies/guess_the_number/' + LOBBY_ID + "/players/" + player + "/guess", GUESS);
+
+    if (GUESS == LOBBY.mysteryNumber) {
+        win(LOBBY_ID, player);
+    }
+
+    //update guess_range
+    if (GUESS > LOBBY["guess_range"].min && GUESS < LOBBY.mysteryNumber) {
+        fb_write('/Lobbies/guess_the_number/' + LOBBY_ID + "/guess_range/min", GUESS);
+    }
+
+    if (GUESS < LOBBY["guess_range"].max && GUESS > LOBBY.mysteryNumber) {
+        fb_write('/Lobbies/guess_the_number/' + LOBBY_ID + "/guess_range/max", GUESS);
+    }
+
+    var inversePlayer = Number(player.replace("player", "")); //Extract the number from 'player1' or 'player2' and convert to int
+    inversePlayer = Math.abs(inversePlayer-3); //Flip the number: 1>2 and 2>1
+    console.log(inversePlayer);
+    fb_write('/Lobbies/guess_the_number/' + LOBBY_ID + "/status/", "player" + String(inversePlayer) + "Turn" );
 }
 
 async function startGame(event) {
+    let max = event.detail.maxNum;
+    let min = event.detail.minNum;
+
     fb_write("Lobbies/guess_the_number/" + event.detail.lobbyID + "/status/", "player1Turn");
+
+    //Generate THE mystery number
+    fb_write("Lobbies/guess_the_number/" + event.detail.lobbyID + "/mysteryNumber/", Math.floor(Math.random() * (max - min + 1)) + min);
 }
 
 fb_valChanged('/Lobbies/guess_the_number', function(_lobbies) {

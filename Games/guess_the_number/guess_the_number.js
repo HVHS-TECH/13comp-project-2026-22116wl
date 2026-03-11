@@ -4,6 +4,11 @@ var gameStarted = false;
 var lobbies = {}
 var lobbyData = {}
 
+var guess = 50;
+
+var max_guess = 100;
+var min_guess = 1;
+
 function preload() {
     defaultPFP = loadImage("../../Assets/Images/notLoggedIn.png");
 }
@@ -87,16 +92,9 @@ function drawButton(x, y, w, h, buttonText, buttonFunction, borderThickness, fil
 function startGame() {
     window.dispatchEvent(new CustomEvent('startGame', {
         detail: { 
-            lobbyID: sessionStorage.getItem('Lobby')
-        }
-    }));
-}
-
-function win() {
-     //tell the other script score updated
-    window.dispatchEvent(new CustomEvent('scoreChanged', {
-        detail: { 
-            highScore: highScore
+            lobbyID: sessionStorage.getItem('Lobby'),
+            maxNum: max_guess,
+            minNum: min_guess,
         }
     }));
 }
@@ -104,7 +102,8 @@ function win() {
 function makeGuess(_guess) {
     window.dispatchEvent(new CustomEvent('makeGuess', {
         detail: {
-            lobby: sessionStorage.getItem('Lobby'),
+            lobbyData: lobbyData,
+            lobbyId: sessionStorage.getItem("Lobby"),
             playerID: sessionStorage.getItem("UID"),
             guess: _guess
         }
@@ -141,22 +140,23 @@ function joinLobby(LobbyUID) {
 // Elaboration if the host leave the lobby is deleted, but if the secondary player sends a request it only overwrites the player 2 data.
 // Trying to overwrite the player2 data after the lobby is deleted results in a new empty lobby with only player 2 data which causes problems
 // Just trust it it's useful
-function leaveLobby(req) {
+
+// outdated comment aboev ignore ^ (i am keeping it in case i need to bring back the system it's describing)
+
+function leaveLobby() {
     scene = "MainLobby";
     const LOBBY_ID = sessionStorage.getItem('Lobby');
     sessionStorage.removeItem('Lobby');
 
     console.log(sessionStorage.getItem('Lobby'));
 
-    if (req != false) {
-        window.dispatchEvent(new CustomEvent('leaveLobby', {
-            detail: {
-                lobby: lobbyData,
-                lobbyID: LOBBY_ID,
-                playerUID: sessionStorage.getItem('UID'),
-            }
-        }));
-    }
+    window.dispatchEvent(new CustomEvent('leaveLobby', {
+        detail: {
+            lobby: lobbyData,
+            lobbyID: LOBBY_ID,
+            playerUID: sessionStorage.getItem('UID'),
+        }
+    }));
     
     lobbyData = {}
 }
@@ -224,13 +224,11 @@ function Game() {
 
 
     // two and five sevenths of the horizontal width seems to be a good spacing
-    const X_POS = {
-        player1: cnv.w/7*2,
-        player2: cnv.w/7*5,
-    }
+    
+    const PFP_X_OFFSET = cnv.w/7*1.5;
 
-    const PFP_YPOS = cnv.h/5*1.8
-    const PFP_RADIUS = 240
+    const PFP_YPOS = cnv.h/5*1.5;
+    const PFP_RADIUS = 230;
 
 
     // Draw in the PFP and the username for each player
@@ -250,18 +248,21 @@ function Game() {
         */
 
         // Create clip for the pfp (to make it a circle)
+        var xpos = PFP_X_OFFSET;
+        if (playeri == 'player1') { xpos = -PFP_X_OFFSET; }
+
         drawingContext.save();
         drawingContext.beginPath();
-        drawingContext.arc(X_POS[playeri], PFP_YPOS, (PFP_RADIUS/2), 0, 2*Math.PI);
+        drawingContext.arc(cnv.w/2 + xpos, PFP_YPOS, (PFP_RADIUS/2), 0, 2*Math.PI);
         drawingContext.clip();
 
-        image(pfpIMG, X_POS[playeri] - (PFP_RADIUS/2), PFP_YPOS - (PFP_RADIUS/2), PFP_RADIUS, PFP_RADIUS);
+        image(pfpIMG, cnv.w/2 + xpos - (PFP_RADIUS/2), PFP_YPOS - (PFP_RADIUS/2), PFP_RADIUS, PFP_RADIUS);
         drawingContext.restore();
     
         textSize(30);
         textAlign(CENTER);
         fill("#000000");
-        text(lobbyData.players[playeri].displayName, X_POS[playeri], PFP_YPOS + 180);
+        text(lobbyData.players[playeri].displayName, cnv.w/2 + xpos, PFP_YPOS + 180);
     }
 
 
@@ -272,28 +273,55 @@ function Game() {
 }
 
 function NotMyTurn() {
+    const TEXT_HEIGHT = cnv.h/7*4.5;
+
     textSize(30);
-    fill("#808080");
-    textAlign(CENTER, CENTER); 
-    text(lobbyData.players[scene.replace('Turn', "")].displayName + " is guessing", cnv.w/2, cnv.h/7*5);
+    fill("#808080"); 
+    text(lobbyData.players[scene.replace('Turn', "")].displayName + " is guessing", cnv.w/2, TEXT_HEIGHT);
 }
 
-function MyTurn() {
-    let guess = 50;
+const COUNTDOWN_TIMER = 6;
+var buttonCountdown = 0;
 
-    const GUESS_BUTTON_HEIGHT = cnv.h/7*5;
-    const BUTTON_OFFSET = 65;
+function MyTurn() {
+    // Button countdown is used to add some space in between clicks on buttons, since the button function runs each frame
+    // Each time you click the increase or decrease button it increases the countdown to the defined countdown timer, and disables the button until the countdown returns to zero
+    if (buttonCountdown > 0) { buttonCountdown -= 1; }
+
+    const GUESS_BUTTON_HEIGHT = cnv.h/9*5;
+    const BUTTON_OFFSET = 120;
+    const BUTTON_SIZE = 60;
+
+    textSize(80);
+    fill("#000000");
+    textAlign(CENTER, CENTER); 
     text(guess, cnv.w/2, GUESS_BUTTON_HEIGHT);
 
-    drawButton(cnv.w/2 + BUTTON_OFFSET, GUESS_BUTTON_HEIGHT, 50, 50, ">", function() { guess = guess+1; console.log("Increase"); console.log(guess); }, 1, "#888888", null, 25);
-    drawButton(cnv.w/2 - BUTTON_OFFSET, GUESS_BUTTON_HEIGHT, 50, 50, "<", function() { guess -= 1; }, 1, "#888888", null, 25);
+    drawButton(cnv.w/2 + BUTTON_OFFSET, GUESS_BUTTON_HEIGHT, BUTTON_SIZE, BUTTON_SIZE, ">", () => { 
+        if (buttonCountdown <= 0 && guess < max_guess ) { guess += 1; buttonCountdown = COUNTDOWN_TIMER; }
+    }, 1, "#888888", null, 40);
 
-    drawButton(cnv.w/2, GUESS_BUTTON_HEIGHT + 50, 100, 50, "Submit Guess", () => { makeGuess(guess); }, 0, "#888888");
+    drawButton(cnv.w/2 - BUTTON_OFFSET, GUESS_BUTTON_HEIGHT, BUTTON_SIZE, BUTTON_SIZE, "<", () => { 
+        if (buttonCountdown <= 0 && guess > min_guess) { guess -= 1; buttonCountdown = COUNTDOWN_TIMER; }
+    }, 1, "#888888", null, 40);
+
+    drawButton(cnv.w/2, GUESS_BUTTON_HEIGHT + 120, 250, 80, "Submit Guess", () => { makeGuess(guess); }, 0, "#888888");
     
 }
 
-// Find which player is taking their turn
+// Either player is taking their turn to guess
 function PlayerTurn() {
+    textAlign(CENTER, CENTER);
+
+    const TEXT_HEIGHT = cnv.h/9*7.6;
+
+    textSize(40);
+    fill("#000000");
+
+    text(String(lobbyData["guess_range"].min) + " is too low", cnv.w/2, TEXT_HEIGHT - 70);
+    text(String(lobbyData["guess_range"].max) + " is too high", cnv.w/2, TEXT_HEIGHT);
+
+
     //Find which player is currently taking their turn
     for (let playeri in lobbyData.players) {
         if (scene == (playeri + 'Turn') && lobbyData.players[playeri].UID == sessionStorage.getItem('UID')) {
@@ -315,7 +343,7 @@ function pageLoad() {
         if (lobbies[sessionStorage.getItem('Lobby')] == null && sessionStorage.getItem('Lobby') != null) {
             console.log('lobby removed');
             console.log(sessionStorage.getItem('Lobby'));
-            leaveLobby(false);
+            leaveLobby();
         }
     });
     
