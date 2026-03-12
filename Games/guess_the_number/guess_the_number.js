@@ -17,7 +17,7 @@ let pfp_x_offset;
 
 
 function setup() {
-    DEFAULT_PFP = loadImage("../../Assets/Images/notLoggedIn.png");
+    DEFAULT_PFP = loadImage("../Assets/Images/notLoggedIn.png");
 
     cnv = new Canvas("1:1");
     pfp_x_offset = cnv.w/7*1.5;
