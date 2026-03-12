@@ -1,5 +1,7 @@
 var scene = "MainLobby";
 var gameStarted = false;
+var iWin;
+
 
 var lobbies = {}
 var lobbyData = {}
@@ -9,12 +11,17 @@ var guess = 50;
 var max_guess = 100;
 var min_guess = 1;
 
+let pfp_x_offset;
+
+
+
 function preload() {
-    defaultPFP = loadImage("../../Assets/Images/notLoggedIn.png");
+    DEFAULT_PFP = loadImage("../../Assets/Images/notLoggedIn.png");
 }
 
 function setup() {
     cnv = new Canvas("1:1");
+    pfp_x_offset = cnv.w/7*1.5;
     scene = "MainLobby";
 }
 
@@ -29,6 +36,7 @@ function draw() {
     if (scene == 'notStarted') { NotStarted(); }
     if (scene == 'waiting') { Waiting(); }
     if (scene == 'player1Turn' || scene == 'player2Turn') { PlayerTurn(); }
+    if (scene == 'player1Won' || scene == 'player2Won') { Won(); }
 }
  
 
@@ -209,6 +217,7 @@ function Waiting() {
     text("Waiting for players - 1/2", cnv.w/2, cnv.h/7*5);
 }
 
+
 function Game() {
     textSize(70);
     textStyle(NORMAL);
@@ -224,8 +233,6 @@ function Game() {
 
 
     // two and five sevenths of the horizontal width seems to be a good spacing
-    
-    const PFP_X_OFFSET = cnv.w/7*1.5;
 
     const PFP_YPOS = cnv.h/5*1.5;
     const PFP_RADIUS = 230;
@@ -233,23 +240,11 @@ function Game() {
 
     // Draw in the PFP and the username for each player
     for (let playeri in lobbyData.players) {
-
-
         var pfpIMG = lobbyData.players[playeri].pfp;
 
-        /*
-        if (lobbyData.players[playeri] != "") {
-            // Player X is in the lobby
-            pfpIMG = ;
-        } else {
-            // Player X is not in the lobby - set default pfp
-            pfpIMG = defaultPFP;
-        }
-        */
-
         // Create clip for the pfp (to make it a circle)
-        var xpos = PFP_X_OFFSET;
-        if (playeri == 'player1') { xpos = -PFP_X_OFFSET; }
+        var xpos = pfp_x_offset;
+        if (playeri == 'player1') { xpos = -pfp_x_offset; }
 
         drawingContext.save();
         drawingContext.beginPath();
@@ -282,6 +277,22 @@ function NotMyTurn() {
 
 const COUNTDOWN_TIMER = 6;
 var buttonCountdown = 0;
+
+function Won() {
+
+    // Find player who won -> playerXWon into playerX
+    let winner = scene.replace("Won", "");
+
+
+
+    if (lobbyData.players[winner].UID == sessionStorage.getItem('UID')) {
+        // I won
+        
+
+    } else {
+        // Other player won
+    }
+}
 
 function MyTurn() {
     // Button countdown is used to add some space in between clicks on buttons, since the button function runs each frame
@@ -353,6 +364,7 @@ function pageLoad() {
             scene = lobbyData.status;
             console.log(scene);
         
+            // Find PFPs
             for (let i in lobbyData.players) {
                 const PFP = lobbyData.players[i].pfp
                 if (PFP != "") {
@@ -360,7 +372,19 @@ function pageLoad() {
                     lobbyData.players[i].pfp = loadImage(lobbyData.players[i].pfp);
                 } else {
                     // Player 2 is not logged in - set their pfp to the default not logged in pfp
-                    lobbyData.players[i].pfp = loadImage("../../Assets/Images/notLoggedIn.png");
+                    lobbyData.players[i].pfp = DEFAULT_PFP;
+                }    
+            }
+
+
+            //Verify players guess
+            for (let playeri in lobbyData.players) {
+                const PLAYER = lobbyData.players[playeri];
+                if (PLAYER.guess == lobbyData.mysteryNumber) {
+                    // Someone has won
+
+                    // Set Lobby status to won
+                    
                 }
             }
         }

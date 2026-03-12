@@ -3,9 +3,7 @@ import { fb_authenticate, fb_readSorted, fb_read, fb_write, fb_valChanged } from
 window.fb_authenticate = fb_authenticate;
 
 // define some global varuables
-let currentGame;
-
-
+var currentGame;
 
 
 // read the database and draw the leaderboard
@@ -47,12 +45,64 @@ async function drawLeaderboard() {
 }
 
 
+async function createLeaderboardEntry(game, player) {
+    var data = {
+        highScore: 0,
+        displayName: await fb_read("Users/" + player + "/displayName")
+    }
+
+    //hard coded other values for specific games set here
+    if (game == "guess_the_number") {
+        data.Losses = 0;
+        data.Wins = 0;
+    }
+
+    await fb_write('Leaderboards/' + game + "/" + player, data);
+
+    return data;
+}
+
+async function updateLeaderboardScore(event) {
+    var leaderboardData = await fb_read('Leaderboards/' + currentGame + "/" + sessionStorage.getItem("UID"));
+
+    if (leaderboardData == null) {
+        // Create leaderboard entry for the player
+        leaderboardData = await createLeaderboardEntry(currentGame, sessionStorage.getItem("UID"));
+    }
 
 
-// functions to run when the page loads
-async function pageLoad() {
-    currentGame = sessionStorage.getItem('game');
-    
+    // Update the scores
+    if (currentGame == "guess_the_number") {
+        var wins = leaderboardData['wins'];
+        var losses = leaderboardData['losses'];
+
+        if (event.detail.wins == 1) {
+            console.log('you won');
+            wins += 1;
+            fb_write("Leaderboards/" + currentGame + "/" + sessionStorage.getItem("UID") + "/wins", wins);
+        } else if (event.detail.losses == 1) {
+            losses += 1;
+            console.log('you lost');
+            fb_write("Leaderboards/" + currentGame + "/" + sessionStorage.getItem("UID") + "/losses", losses);
+        }
+
+        let ratio = wins/(wins+losses);
+        
+        fb_write("Leaderboards/" + currentGame + "/" + sessionStorage.getItem("UID") + "/highScore", ratio);
+
+    } else {
+        const OLD_VAL = leaderboardData['highScore'];
+        const NEW_VAL = event.detail.highScore;
+        //if we are updating the high score value, then chedck whether it is over the old one. If not then don't update it
+        if (NEW_VAL > OLD_VAL) {
+            fb_write("Leaderboards/" + currentGame + "/" + sessionStorage.getItem("UID") + "/highScore", NEW_VAL);
+        }
+    }
+}
+
+
+
+async function setUpGame() {
     //import game metadata, such as game name in text 
     const META_DATA = await import(`./Games/${currentGame}/gameMetaData.mjs`);
     
@@ -64,9 +114,9 @@ async function pageLoad() {
     }
     
     document.querySelector("h1").innerHTML = META_DATA.gameName;
-    
-    
-    // Detect element added, if element is p5 canvas then add it to the div
+
+
+    // Detect element added, if element is p5 canvas then put it in the right div
     const OBSERVER = new MutationObserver((mutationsList) => {
         for (const mutation of mutationsList) {
             for (const element of mutation.addedNodes) {
@@ -82,53 +132,21 @@ async function pageLoad() {
     });
     
     OBSERVER.observe(document.body, {childList: true, subtree: true});
+}
+
+
+
+// functions to run when the page loads
+async function pageLoad() {
+    currentGame = sessionStorage.getItem('game');
     
-
-   
-
-
-    //when game finishes fire this event in order to update the score
-    window.addEventListener('scoreChanged', async function(event) {
-        //valueType is the key of the value passed in, such as "highScore", "Losses" or "Wins"
-        var leaderboardData = await fb_read('Leaderboards/' + currentGame + "/" + sessionStorage.getItem("UID"));
-
-        // Create leaderboard entry for the player
-        if (leaderboardData == null) {
-            var data = {
-                highScore: event.detail.highScore,
-                displayName: await fb_read("Users/" + sessionStorage.getItem('UID') + "/displayName")
-            }
-
-            //hard coded other values for specific games set here
-            if (currentGame == "guess_the_number") {
-                data.losses = 0;
-                data.wins = 0;
-            }
-
-            await fb_write('Leaderboards/' + currentGame + "/" + sessionStorage.getItem("UID"), data);
-        }
-
-        for (let valueType in event.detail) {
-
-            if (valueType == "highScore") {
-                const oldVal = leaderboardData[valueType];
-
-                //if we are updating the high score value, then chedck whether it is over the old one. If not then don't update it
-                if (event.detail.valueType < oldVal) {
-                    continue;
-                }
-            }
-
-            console.log('writing');
-            await fb_write("Leaderboards/" + currentGame + "/" + sessionStorage.getItem("UID") + "/" + valueType, event.detail[valueType]);
-        }
-    });
+    setUpGame();
     
+    //when game finishes fire this event to update the score on the leaderboard
+    window.addEventListener('scoreChanged', updateLeaderboardScore);
 
     //Detect changes in the leaderboard for the current game, and then redraw the leaderboard
-    await fb_valChanged("/Leaderboards/" + currentGame, function(change) {
-        drawLeaderboard();
-    }, 'highScore');
+    await fb_valChanged("/Leaderboards/" + currentGame, drawLeaderboard, 'highScore');
 };
 
 pageLoad();

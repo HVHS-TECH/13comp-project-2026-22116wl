@@ -92,8 +92,24 @@ async function leaveLobby(event) {
     }, 600);
 }
 
-async function win(lobbyId, winner) {
-    
+async function win(lobbyId, winner, winnerUID) {
+    fb_write("/Lobbies/guess_the_number/" + lobbyId + "/status", winner + "Won");
+
+    if (winnerUID == sessionStorage.getItem("UID")) {
+        // I won
+        window.dispatchEvent(new CustomEvent('scoreChanged', {
+            detail: { 
+                lobbyID: sessionStorage.getItem('Lobby'),
+                maxNum: max_guess,
+                minNum: min_guess,
+            }
+        }));
+
+    } else {
+        // I did not win
+
+
+    }
 }
 
 async function submitGuess(event) {
@@ -110,11 +126,14 @@ async function submitGuess(event) {
         }
     }
 
+    
+    if (GUESS == LOBBY.mysteryNumber) {
+        win(LOBBY_ID, player, LOBBY.players[player].UID);
+        return;
+    }
+
     fb_write('/Lobbies/guess_the_number/' + LOBBY_ID + "/players/" + player + "/guess", GUESS);
 
-    if (GUESS == LOBBY.mysteryNumber) {
-        win(LOBBY_ID, player);
-    }
 
     //update guess_range
     if (GUESS > LOBBY["guess_range"].min && GUESS < LOBBY.mysteryNumber) {
@@ -153,3 +172,4 @@ window.addEventListener('joinLobby', joinLobby);
 window.addEventListener('leaveLobby', leaveLobby);
 window.addEventListener('makeGuess', submitGuess);
 window.addEventListener('startGame', startGame);
+window.addEventListener('win', win);
