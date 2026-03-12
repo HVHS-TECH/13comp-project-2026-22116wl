@@ -15,11 +15,10 @@ let pfp_x_offset;
 
 
 
-function preload() {
-    DEFAULT_PFP = loadImage("../../Assets/Images/notLoggedIn.png");
-}
 
 function setup() {
+    DEFAULT_PFP = loadImage("././Assets/Images/notLoggedIn.png");
+
     cnv = new Canvas("1:1");
     pfp_x_offset = cnv.w/7*1.5;
     scene = "MainLobby";
