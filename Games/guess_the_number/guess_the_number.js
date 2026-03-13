@@ -17,7 +17,7 @@ let pfp_x_offset;
 
 
 function setup() {
-    DEFAULT_PFP = loadImage("../Assets/Images/notLoggedIn.png");
+    DEFAULT_PFP = loadImage("Assets/Images/notLaggedIn.png");
 
     cnv = new Canvas("1:1");
     pfp_x_offset = cnv.w/7*1.5;
@@ -126,20 +126,6 @@ function joinLobby(LobbyUID) {
     }));
 
     sessionStorage.setItem('Lobby', LobbyUID);
-
-    // There is a small wait until lobbyData is set correctly by the firebase update listener, so set a loop waiting for the lobby data to load in
-    // Exit the loop once it has loaded in
-
-    /*
-    let joinWaitLoop = setInterval(() => {
-        if (Object.keys(lobbyData).length > 0) {
-            //scene = "Game";
-            clearInterval(joinWaitLoop);
-            console.log('joined');
-            return;
-        }
-    }, 150);
-    */
 }
 
 
