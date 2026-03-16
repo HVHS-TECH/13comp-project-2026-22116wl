@@ -86,7 +86,7 @@ async function updateLeaderboardScore(event) {
             fb_write("Leaderboards/" + currentGame + "/" + sessionStorage.getItem("UID") + "/losses", losses);
         }
 
-        let ratio = wins/(wins+losses);
+        let ratio = Math.round(wins/(wins+losses) * 100)/100;
         
         fb_write("Leaderboards/" + currentGame + "/" + sessionStorage.getItem("UID") + "/highScore", ratio);
 

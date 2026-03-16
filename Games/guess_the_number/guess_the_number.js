@@ -14,11 +14,12 @@ var min_guess = 1;
 let pfp_x_offset;
 
 
-
+function preload() {
+    DEFAULT_PFP = loadImage("Assets/Images/notLoggedIn.png");
+    CROWN = loadImage("./Games/guess_the_number/Assets/Images/crown.png");
+}
 
 function setup() {
-    DEFAULT_PFP = loadImage("Assets/Images/notLoggedIn.png");
-
     cnv = new Canvas("1:1");
     pfp_x_offset = cnv.w/7*1.5;
     scene = "MainLobby";
@@ -27,7 +28,7 @@ function setup() {
 function draw() {
     background('#dedede');
     
-    if (scene == "waiting" || scene == "notStarted" || scene == "player1Turn" || scene == "player2Turn" || scene == "won") {
+    if (scene == "waiting" || scene == "notStarted" || scene == "player1Turn" || scene == "player2Turn" || scene == "player1Won" || scene == "player2Won") {
         Game(); //draw in always visible things, such as the two PFPS, usernames, and the "vs" in between
     }
     
@@ -265,10 +266,9 @@ var buttonCountdown = 0;
 
 function Won() {
 
-    // Find player who won -> playerXWon into playerX
+    // Find player who won
+    // sub out 'Won' from scene: playerXWon -> playerX 
     let winner = scene.replace("Won", "");
-
-
 
     if (lobbyData.players[winner].UID == sessionStorage.getItem('UID')) {
         // I won
@@ -330,6 +330,48 @@ function PlayerTurn() {
     NotMyTurn();
 }
 
+function someoneHasWon() {
+    // scene is player1Won or player2Won
+    if (scene.includes('Won')) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function sceneChanged(event) {
+    console.log('scene changed');
+
+    
+    const LOBBY_ID = event.detail.lobbyID;
+        if (LOBBY_ID == sessionStorage.getItem('Lobby')) {
+            scene = event.detail.scene;
+
+            if (someoneHasWon()) {
+                console.log('someone won!');
+                let winner = scene.replace("Won", "");
+                let winnerUID = lobbyData.players[winner].UID;
+                
+                //Add win to DB
+                let _win = 0;
+                let _loss = 0;
+
+                if (winnerUID == sessionStorage.getItem("UID")) {
+                    _win = 1;
+                } else {
+                    _loss = 1;
+                }
+                
+                window.dispatchEvent(new CustomEvent('scoreChanged', {
+                    detail: { 
+                        wins: _win,
+                        losses: _loss
+                    }
+                }));
+            }
+        }
+}
+
 // Listeners to add and functions to run upon game loadup
 function pageLoad() {
     window.addEventListener('lobbyAdded', function(event) {
@@ -344,10 +386,8 @@ function pageLoad() {
     });
     
     window.addEventListener('lobbyChanged', function(event) {
-        if (event.detail.lobbyUID == sessionStorage.getItem("Lobby")) {
+        if (event.detail.lobbyID == sessionStorage.getItem("Lobby")) {
             lobbyData = event.detail.lobby;
-            scene = lobbyData.status;
-            console.log(scene);
         
             // Find PFPs
             for (let i in lobbyData.players) {
@@ -374,6 +414,10 @@ function pageLoad() {
             }
         }
     });
+
+
+    window.addEventListener('lobbySceneChanged', sceneChanged);
+    
     
     // If a player closes the window whilst in a lobby - leave the lobby
     window.addEventListener('beforeunload', (event) => {

@@ -11,7 +11,7 @@ async function joinLobby(event) {
     //when the two match it means a new lobby is being created
 
     if (HOST_UID == PLAYER_UID) {
-        fb_write("/Lobbies/guess_the_number/" + PLAYER_UID, {
+        await fb_write("/Lobbies/guess_the_number/" + PLAYER_UID, {
             mysteryNumber: 0,
             status: "waiting",
             guess_range: {
@@ -48,14 +48,24 @@ async function joinLobby(event) {
     }
 
     
-    fb_valChanged('/Lobbies/guess_the_number/' + HOST_UID, function(_lobby) {
+    fb_valChanged('/Lobbies/guess_the_number/' + HOST_UID, (_lobby) => {
+        console.log('some gyiuersthgiusrhogjesoighaeh')
         window.dispatchEvent(new CustomEvent('lobbyChanged', {
             detail: {
                 lobby: _lobby,
-                lobbyUID: HOST_UID
+                lobbyID: HOST_UID
             }
         }));
-    }, "xyz");
+    });
+
+    fb_valChanged('/Lobbies/guess_the_number/' + HOST_UID + '/status/', (_scene) => {
+        window.dispatchEvent(new CustomEvent('lobbySceneChanged', {
+            detail: {
+                scene: _scene,
+                lobbyID: HOST_UID
+            }
+        }));
+    });
 }
 
 async function leaveLobby(event) {
