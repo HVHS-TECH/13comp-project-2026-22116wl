@@ -52,10 +52,11 @@ async function createLeaderboardEntry(game, player) {
     }
 
     //hard coded other values for specific games set here
+    /*
     if (game == "guess_the_number") {
         data.losses = 0;
         data.wins = 0;
-    }
+    }*/
 
     await fb_write('Leaderboards/' + game + "/" + player, data);
 
@@ -75,26 +76,13 @@ async function updateLeaderboardScore(event) {
 
     // Update the scores
     if (currentGame == "guess_the_number") {
-        var wins = leaderboardData.wins;
-        var losses = leaderboardData.losses;
+        var wins = leaderboardData.highScore;
 
         if (event.detail.wins == 1) {
             console.log('you won');
             wins += 1;
-            fb_write("Leaderboards/" + currentGame + "/" + sessionStorage.getItem("UID") + "/wins", wins);
-        } else if (event.detail.losses == 1) {
-            console.log('you lost');
-            losses += 1;
-            fb_write("Leaderboards/" + currentGame + "/" + sessionStorage.getItem("UID") + "/losses", losses);
+            fb_write("Leaderboards/" + currentGame + "/" + sessionStorage.getItem("UID") + "/highScore", wins);
         }
-
-        console.log("ratio:")
-        console.log(wins);
-        console.log(losses);
-        let ratio = Math.round(wins/(wins+losses) * 100)/100;
-        console.log(ratio);
-        
-        fb_write("Leaderboards/" + currentGame + "/" + sessionStorage.getItem("UID") + "/highScore", ratio);
 
     } else {
         const OLD_VAL = leaderboardData['highScore'];
