@@ -13,6 +13,7 @@ var min_guess = 1;
 
 let pfp_x_offset;
 
+var sceneChanging = false;
 
 function preload() {
     DEFAULT_PFP = loadImage("Assets/Images/notLoggedIn.png");
@@ -98,35 +99,47 @@ function drawButton(x, y, w, h, buttonText, buttonFunction, borderThickness, fil
 }
 
 function startGame() {
-    window.dispatchEvent(new CustomEvent('startGame', {
-        detail: { 
-            lobbyID: sessionStorage.getItem('Lobby'),
-            maxNum: max_guess,
-            minNum: min_guess,
-        }
-    }));
+    if (!sceneChanging) {
+        sceneChanging = true;
+
+        window.dispatchEvent(new CustomEvent('startGame', {
+            detail: { 
+                lobbyID: sessionStorage.getItem('Lobby'),
+                maxNum: max_guess,
+                minNum: min_guess,
+            }
+        }));
+    }
 }
 
 function makeGuess(_guess) {
-    window.dispatchEvent(new CustomEvent('makeGuess', {
-        detail: {
-            lobbyData: lobbyData,
-            lobbyId: sessionStorage.getItem("Lobby"),
-            playerID: sessionStorage.getItem("UID"),
-            guess: _guess
-        }
-    }));
+    if (!sceneChanging) {
+        sceneChanging = true;
+
+        window.dispatchEvent(new CustomEvent('makeGuess', {
+            detail: {
+                lobbyData: lobbyData,
+                lobbyId: sessionStorage.getItem("Lobby"),
+                playerID: sessionStorage.getItem("UID"),
+                guess: _guess
+            }
+        }));
+    }
 }
 
 function joinLobby(LobbyUID) {
-    window.dispatchEvent(new CustomEvent('joinLobby', {
-        detail: {
-            LobbyUID: LobbyUID,
-            PlayerUID: sessionStorage.getItem('UID')
-        }
-    }));
+    if (!sceneChanging) {
+        sceneChanging = true;
 
-    sessionStorage.setItem('Lobby', LobbyUID);
+        window.dispatchEvent(new CustomEvent('joinLobby', {
+            detail: {
+                LobbyUID: LobbyUID,
+                PlayerUID: sessionStorage.getItem('UID')
+            }
+        }));
+    
+        sessionStorage.setItem('Lobby', LobbyUID);
+    }
 }
 
 
@@ -342,7 +355,8 @@ function someoneHasWon() {
 function sceneChanged(event) {
     console.log('scene changed');
 
-    
+    sceneChanging = false;
+
     const LOBBY_ID = event.detail.lobbyID;
         if (LOBBY_ID == sessionStorage.getItem('Lobby')) {
             scene = event.detail.scene;
@@ -362,6 +376,7 @@ function sceneChanged(event) {
                     _loss = 1;
                 }
                 
+                console.log('FIRING EVENT');
                 window.dispatchEvent(new CustomEvent('scoreChanged', {
                     detail: { 
                         wins: _win,

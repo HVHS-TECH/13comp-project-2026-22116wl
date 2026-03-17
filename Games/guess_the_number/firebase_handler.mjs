@@ -47,6 +47,7 @@ async function joinLobby(event) {
         await fb_write("/Lobbies/guess_the_number/" + HOST_UID + "/status", "notStarted");
     }
 
+    console.log('assinging');
     
     fb_valChanged('/Lobbies/guess_the_number/' + HOST_UID, (_lobby) => {
         console.log('some gyiuersthgiusrhogjesoighaeh')
