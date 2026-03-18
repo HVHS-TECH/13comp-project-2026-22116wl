@@ -1,13 +1,16 @@
 var scene = "MainLobby";
 var gameStarted = false;
-var iWin;
-
 
 var lobbies = {}
+
+
 var lobbyData = {}
+var lobbyID = "";
 
 var guess = 50;
 
+
+// Var not const to future proof the ability to make the range potentially customisable
 var max_guess = 100;
 var min_guess = 1;
 
@@ -29,15 +32,15 @@ function setup() {
 function draw() {
     background('#dedede');
     
-    if (scene == "waiting" || scene == "notStarted" || scene == "player1Turn" || scene == "player2Turn" || scene == "player1Won" || scene == "player2Won") {
+    if (scene == "waiting" || scene == "notStarted" || scene.includes("Turn") || scene.includes('Won')) {
         Game(); //draw in always visible things, such as the two PFPS, usernames, and the "vs" in between
     }
     
-    if (scene == "MainLobby") { MainLobby(); }
-    if (scene == 'notStarted') { NotStarted(); }
-    if (scene == 'waiting') { Waiting(); }
-    if (scene == 'player1Turn' || scene == 'player2Turn') { PlayerTurn(); }
-    if (scene == 'player1Won' || scene == 'player2Won') { Won(); }
+    if (scene == 'MainLobby')   { MainLobby(); }
+    if (scene == 'notStarted')  { NotStarted(); }
+    if (scene == 'waiting')     { Waiting(); }
+    if (scene.includes('Turn')) { PlayerTurn(); }
+    if (scene.includes('Won'))  { Won(); }
 }
  
 
@@ -104,7 +107,7 @@ function startGame() {
 
         window.dispatchEvent(new CustomEvent('startGame', {
             detail: { 
-                lobbyID: sessionStorage.getItem('Lobby'),
+                lobbyID: lobbyID,
                 maxNum: max_guess,
                 minNum: min_guess,
             }
@@ -119,7 +122,7 @@ function makeGuess(_guess) {
         window.dispatchEvent(new CustomEvent('makeGuess', {
             detail: {
                 lobbyData: lobbyData,
-                lobbyId: sessionStorage.getItem("Lobby"),
+                lobbyId: lobbyID,
                 playerID: sessionStorage.getItem("UID"),
                 guess: _guess
             }
@@ -130,6 +133,7 @@ function makeGuess(_guess) {
 function joinLobby(LobbyUID) {
     if (!sceneChanging) {
         sceneChanging = true;
+        guess = Math.floor((min_guess+max_guess)/2);
 
         window.dispatchEvent(new CustomEvent('joinLobby', {
             detail: {
@@ -138,7 +142,9 @@ function joinLobby(LobbyUID) {
             }
         }));
     
-        sessionStorage.setItem('Lobby', LobbyUID);
+
+        // Set global variable lobbyId
+        lobbyID = LobbyUID;
     }
 }
 
@@ -152,19 +158,16 @@ function joinLobby(LobbyUID) {
 
 function leaveLobby() {
     scene = "MainLobby";
-    const LOBBY_ID = sessionStorage.getItem('Lobby');
-    sessionStorage.removeItem('Lobby');
-
-    console.log(sessionStorage.getItem('Lobby'));
-
+    
     window.dispatchEvent(new CustomEvent('leaveLobby', {
         detail: {
             lobby: lobbyData,
-            lobbyID: LOBBY_ID,
+            lobbyID: lobbyID,
             playerUID: sessionStorage.getItem('UID'),
         }
     }));
     
+    lobbyID = "";
     lobbyData = {}
 }
 
@@ -197,7 +200,7 @@ function MainLobby() {
 
 function NotStarted() {
 
-    if (sessionStorage.getItem('Lobby') == sessionStorage.getItem('UID')) {
+    if (lobbyID == sessionStorage.getItem('UID')) {
         // Player is the host of their lobby
         drawButton(cnv.w/2, cnv.h/7*5, 350, 75, "Start Game", startGame, 3, "#999999");
     } else {
@@ -283,12 +286,25 @@ function Won() {
     // sub out 'Won' from scene: playerXWon -> playerX 
     let winner = scene.replace("Won", "");
 
-    if (lobbyData.players[winner].UID == sessionStorage.getItem('UID')) {
-        // I won
-        
+    const CROWN_YPOS = cnv.h/5*1.5 - 210;
+    const CROWN_WIDTH = 270;
 
-    } else {
-        // Other player won
+    let crownXOffset = pfp_x_offset;
+    
+    // Flip side of screen with the crown if player 1 wins
+    if (winner == "player1") { crownXOffset = -crownXOffset; }
+
+    crownXOffset -= CROWN_WIDTH/2;
+
+    image(CROWN, cnv.w/2 + crownXOffset, CROWN_YPOS, CROWN_WIDTH, CROWN_WIDTH*0.5);
+    console.log('image!');
+
+    fill('#564d00');
+    textSize(60);
+    text(lobbyData.players[winner].displayName + " Wins!", cnv.w/2, cnv.h/6*3);
+    
+    if (sessionStorage.getItem("UID") == lobbyID) {
+        drawButton(cnv.h/2, cnv.h/9*7, 230, 100, "Rematch", () => {}, "#888888");
     }
 }
 
@@ -358,11 +374,10 @@ function sceneChanged(event) {
     sceneChanging = false;
 
     const LOBBY_ID = event.detail.lobbyID;
-        if (LOBBY_ID == sessionStorage.getItem('Lobby')) {
+        if (LOBBY_ID == lobbyID) {
             scene = event.detail.scene;
-
+            
             if (someoneHasWon()) {
-                console.log('someone won!');
                 let winner = scene.replace("Won", "");
                 let winnerUID = lobbyData.players[winner].UID;
                 
@@ -376,7 +391,6 @@ function sceneChanged(event) {
                     _loss = 1;
                 }
                 
-                console.log('FIRING EVENT');
                 window.dispatchEvent(new CustomEvent('scoreChanged', {
                     detail: { 
                         wins: _win,
@@ -393,15 +407,15 @@ function pageLoad() {
         lobbies = event.detail.lobbies;
 
         // If the lobby you are in is removed then leave it
-        if (lobbies[sessionStorage.getItem('Lobby')] == null && sessionStorage.getItem('Lobby') != null) {
+        if (lobbies[lobbyID] == null && lobbyID != null) {
             console.log('lobby removed');
-            console.log(sessionStorage.getItem('Lobby'));
+            console.log(lobbyID);
             leaveLobby();
         }
     });
     
     window.addEventListener('lobbyChanged', function(event) {
-        if (event.detail.lobbyID == sessionStorage.getItem("Lobby")) {
+        if (event.detail.lobbyID == lobbyID) {
             lobbyData = event.detail.lobby;
         
             // Find PFPs

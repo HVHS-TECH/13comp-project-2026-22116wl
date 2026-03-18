@@ -106,8 +106,11 @@ async function setUpGame() {
     } else {
         document.getElementById('gameSpace').style.backgroundColor = "white";
     }
-    
-    document.querySelector("h1").innerHTML = META_DATA.gameName;
+
+    const GAME_NAME = META_DATA.gameName
+    const FORMATTED_NAME = GAME_NAME.replaceAll(" ", "&nbsp;"); // Make the spaces non breaking spaces
+
+    document.querySelector("h1").innerHTML = FORMATTED_NAME;
 
 
     // Detect element added, if element is p5 canvas then put it in the right div

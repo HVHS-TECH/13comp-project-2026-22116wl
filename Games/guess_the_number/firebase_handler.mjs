@@ -110,7 +110,7 @@ async function win(lobbyId, winner, winnerUID) {
         // I won
         window.dispatchEvent(new CustomEvent('scoreChanged', {
             detail: { 
-                lobbyID: sessionStorage.getItem('Lobby'),
+                lobbyID: lobbyId,
                 maxNum: max_guess,
                 minNum: min_guess,
             }
@@ -157,7 +157,8 @@ async function submitGuess(event) {
 
     var inversePlayer = Number(player.replace("player", "")); //Extract the number from 'player1' or 'player2' and convert to int
     inversePlayer = Math.abs(inversePlayer-3); //Flip the number: 1>2 and 2>1
-    console.log(inversePlayer);
+
+    console.log('inversing player');
     fb_write('/Lobbies/guess_the_number/' + LOBBY_ID + "/status/", "player" + String(inversePlayer) + "Turn" );
 }
 
@@ -165,6 +166,7 @@ async function startGame(event) {
     let max = event.detail.maxNum;
     let min = event.detail.minNum;
 
+    console.log('game start');
     fb_write("Lobbies/guess_the_number/" + event.detail.lobbyID + "/status/", "player1Turn");
 
     //Generate THE mystery number
