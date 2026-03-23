@@ -20,14 +20,15 @@ h2 {
 }
 
 #adminUserList {
-	width: 500px;
+	width: 450px;
 	height: calc(100vh - 82px);
 	border-left: 2px solid black;
+	background-color: white;
 }
 
 #scrollingUserList {
 	overflow-y: scroll;
-	width: 95%;
+	width: 92%;
 	height: calc(100% - 68px);
 	padding-left: 20px;
 }
@@ -37,7 +38,7 @@ h2 {
 	flex-direction: row;
 
 	width: 100%;
-	height: 100px;
+	height: 80px;
 	border-radius: 0px;
 	border: 2px solid gray;
 	border-bottom: 1px solid gray;
@@ -46,11 +47,13 @@ h2 {
 }
 
 .listUser img {
-	height: 60px;
-	width: 60px;
+	height: 50px;
+	width: 50px;
 	border-radius: 100%;
 	border: 2px solid black;
-	margin-top: 15px;
+	margin-top: auto;
+	margin-bottom: auto;
+
 	margin-left: 10% !important;
 	margin-right: 35px !important;
 }
@@ -60,8 +63,13 @@ h2 {
 	width: 60%;
 	height: 40px;
 	margin: 0px !important;
-	margin-top: 33px !important;
-	font-size: 25px;
+
+	margin-top: auto !important;
+	margin-bottom: auto !important;
+
+	line-height: 40px;
+
+	font-size: 22px;
 }
 
 
@@ -154,8 +162,4 @@ h2 {
     font-weight: bold;
     font-size: 15px;
     display: none;
-}
-
-button:disabled {
-    
 }

@@ -189,7 +189,7 @@ function MainLobby() {
         // a permanent placeholder is needed under /Lobbies/[game] as firebase cannot store an empty table
         if (lobbyUID == "placeholder") { continue; }
         
-        drawButton(270, 200+((i+1)*60), 450, 80, lobby.players.player1.displayName + "'s Lobby", () => {
+        drawButton(270, 150+((i+1)*110), 450, 80, lobby.players.player1.displayName + "'s Lobby", () => {
             joinLobby(lobbyUID);
         }, 0, "#111111", "#9d1d1d");
 
@@ -199,7 +199,6 @@ function MainLobby() {
 
 
 function NotStarted() {
-
     if (lobbyID == sessionStorage.getItem('UID')) {
         // Player is the host of their lobby
         drawButton(cnv.w/2, cnv.h/7*5, 350, 75, "Start Game", startGame, 3, "#999999");
@@ -221,7 +220,7 @@ function Waiting() {
 
 
 function Game() {
-    textSize(70);
+    textSize(60);
     textStyle(NORMAL);
     fill('#000000');
     textAlign(CENTER);
@@ -236,7 +235,7 @@ function Game() {
 
     // two and five sevenths of the horizontal width seems to be a good spacing
 
-    const PFP_YPOS = cnv.h/5*1.5;
+    const PFP_YPOS = cnv.h/5*1.6;
     const PFP_RADIUS = 230;
 
 
@@ -259,7 +258,7 @@ function Game() {
         textSize(30);
         textAlign(CENTER);
         fill("#000000");
-        text(lobbyData.players[playeri].displayName, cnv.w/2 + xpos, PFP_YPOS + 180);
+        text(lobbyData.players[playeri].displayName, cnv.w/2 + xpos, PFP_YPOS + 160);
     }
 
 
@@ -269,6 +268,42 @@ function Game() {
     text("vs", cnv.w/2, PFP_YPOS);
 }
 
+
+
+function drawCrown(winner) {
+    const CROWN_YPOS = cnv.h/5*1.6 - 210;
+    const CROWN_WIDTH = 270;
+    
+    let crownXOffset = pfp_x_offset;
+    
+    // Flip side of screen with the crown if player 1 wins
+    if (winner == "player1") { crownXOffset = -crownXOffset; }
+    
+    crownXOffset -= CROWN_WIDTH/2;
+    
+    image(CROWN, cnv.w/2 + crownXOffset, CROWN_YPOS, CROWN_WIDTH, CROWN_WIDTH*0.5);
+}
+
+
+function Won() {
+    // Find player who won
+    // sub out 'Won' from scene: playerXWon -> playerX 
+    let winner = scene.replace("Won", "");
+
+    // Put a crown over the pfp of the winner
+    drawCrown(winner);
+
+
+    fill('#564d00');
+    textSize(60);
+    text(lobbyData.players[winner].displayName + " Wins!", cnv.w/2, cnv.h/9*5.5);
+    
+    if (sessionStorage.getItem("UID") == lobbyID) {
+        drawButton(cnv.h/2, cnv.h/9*7, 230, 100, "Rematch", () => {}, 0, "#888888");
+    }
+}
+
+
 function NotMyTurn() {
     const TEXT_HEIGHT = cnv.h/7*4.5;
 
@@ -277,37 +312,9 @@ function NotMyTurn() {
     text(lobbyData.players[scene.replace('Turn', "")].displayName + " is guessing", cnv.w/2, TEXT_HEIGHT);
 }
 
+
 const COUNTDOWN_TIMER = 6;
 var buttonCountdown = 0;
-
-function Won() {
-
-    // Find player who won
-    // sub out 'Won' from scene: playerXWon -> playerX 
-    let winner = scene.replace("Won", "");
-
-    const CROWN_YPOS = cnv.h/5*1.5 - 210;
-    const CROWN_WIDTH = 270;
-
-    let crownXOffset = pfp_x_offset;
-    
-    // Flip side of screen with the crown if player 1 wins
-    if (winner == "player1") { crownXOffset = -crownXOffset; }
-
-    crownXOffset -= CROWN_WIDTH/2;
-
-    image(CROWN, cnv.w/2 + crownXOffset, CROWN_YPOS, CROWN_WIDTH, CROWN_WIDTH*0.5);
-    console.log('image!');
-
-    fill('#564d00');
-    textSize(60);
-    text(lobbyData.players[winner].displayName + " Wins!", cnv.w/2, cnv.h/6*3);
-    
-    if (sessionStorage.getItem("UID") == lobbyID) {
-        drawButton(cnv.h/2, cnv.h/9*7, 230, 100, "Rematch", () => {}, "#888888");
-    }
-}
-
 function MyTurn() {
     // Button countdown is used to add some space in between clicks on buttons, since the button function runs each frame
     // Each time you click the increase or decrease button it increases the countdown to the defined countdown timer, and disables the button until the countdown returns to zero
