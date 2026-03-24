@@ -1,6 +1,5 @@
 
-import { fb_authenticate, fb_readSorted, fb_read, fb_write, fb_valChanged } from "./fb.mjs";
-window.fb_authenticate = fb_authenticate;
+import { fb_readSorted, fb_read, fb_write, fb_valChanged } from "./fb.mjs";
 
 // define some global varuables
 var currentGame;
@@ -64,6 +63,8 @@ async function createLeaderboardEntry(game, player) {
 }
 
 async function updateLeaderboardScore(event) {
+    console.log('hei');
+
     var leaderboardData = await fb_read('Leaderboards/' + currentGame + "/" + sessionStorage.getItem("UID"));
 
     if (leaderboardData == null) {
@@ -138,12 +139,30 @@ async function pageLoad() {
     currentGame = sessionStorage.getItem('game');
     
     setUpGame();
+
+    localStorage.setItem('score', 0);
     
     //when game finishes fire this event to update the score on the leaderboard
     window.addEventListener('scoreChanged', updateLeaderboardScore);
 
     //Detect changes in the leaderboard for the current game, and then redraw the leaderboard
     await fb_valChanged("/Leaderboards/" + currentGame, drawLeaderboard, 'highScore');
+
+
+// If a player closes the window - update the leaderboard with the score they have
+window.addEventListener('beforeunload', () => {
+
+    console.log('SCORE CHANGED!!');
+
+    if (localStorage.getItem('score') != 0) {
+        updateLeaderboardScore({
+            detail: {
+                highScore: localStorage.getItem('score')
+            }
+        });
+    }
+});
+
 };
 
 pageLoad();

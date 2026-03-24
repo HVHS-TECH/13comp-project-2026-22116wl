@@ -5,8 +5,10 @@ var backgroundColour;
 
 var scene;
 
-var score = 0;
-var highScore = score;
+// Changed score from global var to localStorage - 2026
+// var score = 0;
+
+var highScore = 0;
 
 var mouseControl = true;
 
@@ -22,6 +24,7 @@ function preload() {
 }
 */
 
+
 function setup() {
     cnv = new Canvas("1:1");
     player = new Sprite(cnv.hw, cnv.hh, 100, 100, "k");  
@@ -33,7 +36,7 @@ function setup() {
     
 	player.collides(coins, function(collider1, collider2){
         collider2.remove();
-        score ++;
+        localStorage.setItem('score', Number(localStorage.getItem('score')) + 1);
     });
 
 
@@ -77,7 +80,8 @@ function getDist(x1, y1, x2, y2) {
 
 function startGame() {
     scene = 'game';
-    score = 0;
+    
+    localStorage.setItem('score', 0);
     coinDelay = 50;
 
     coinGravityStrength = 0;
@@ -173,7 +177,7 @@ function finishedScreen() {
     textAlign('center');
     text("Game Over!", cnv.hw, cnv.hh - 75);
     textSize(25);
-    text("Final Score: " + score, cnv.hw, cnv.hh - 15);
+    text("Final Score: " + localStorage.getItem('score'), cnv.hw, cnv.hh - 15);
     textSize(22.5);
     text("High Score: " + highScore, cnv.hw, cnv.hh + 15);
 
@@ -194,7 +198,7 @@ function gameScreen() {
     textAlign('left');
     fill(0, 0, 0);
     textSize(30);
-    text('Score: ' + score, 20, 40);
+    text('Score: ' + localStorage.getItem('score'), 20, 40);
 
     if (frameCount % coinDelay == 0) {
         newCoin();
@@ -211,11 +215,11 @@ function gameScreen() {
             scene = 'finished';
             coins.removeAll();
             
-            if (score > highScore) {
-                highScore = score;
+            if (Number(localStorage.getItem('score')) > highScore) {
+                highScore = Number(localStorage.getItem('score'));
             }
             
-            //tell the other script score updated
+            //tell the other script score updated 
             window.dispatchEvent(new CustomEvent('scoreChanged', {
                 detail: {
                     highScore: highScore

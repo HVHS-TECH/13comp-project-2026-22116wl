@@ -72,6 +72,20 @@ async function joinLobby(event) {
     });
 }
 
+
+
+async function resetLobby(event) {
+    const LOBBY_ID = event.detail.LobbyID;
+
+    fb_write("/Lobbies/guess_the_number/" + LOBBY_ID + "/status", 'notStarted');
+    fb_write("/Lobbies/guess_the_number/" + LOBBY_ID + "/mysteryNumber", 0);
+    fb_write("/Lobbies/guess_the_number/" + LOBBY_ID + "/guess_range", {
+        max: 100,
+        min: 0,
+    });
+}
+
+
 async function leaveLobby(event) {
     const LOBBY_ID = event.detail.lobbyID;
     const PLAYER_UID = event.detail.playerUID;
@@ -188,4 +202,5 @@ window.addEventListener('joinLobby', joinLobby);
 window.addEventListener('leaveLobby', leaveLobby);
 window.addEventListener('makeGuess', submitGuess);
 window.addEventListener('startGame', startGame);
+window.addEventListener('resetLobby', resetLobby);
 window.addEventListener('win', win);

@@ -1,5 +1,8 @@
 var scene = 'menu';
-var score = 0;
+
+// Changed score from global var to localStorage - 2026
+// var score = 0;
+
 var highScore = 0;
 var wave = 0;
 var gameAttempt = 0; //used on backend to differentiate different games to the alien spawn loop
@@ -80,7 +83,8 @@ function setup() {
 
         alien.health -= damageDealt;
         if (scene == 'game') { // don't add score for bullets that collided after game ended
-            score += Math.round(damageDealt / 10 * waveData['scoreMult']);
+            var score = localStorage.getItem('score');
+            localStorage.setItem('score', Number(score) + Math.round(damageDealt / 10 * waveData['scoreMult']));
         }
     });
 }
@@ -259,7 +263,7 @@ function resetGame() {
 
     // reset basic data
     wave = 0;
-    score = 0;
+    localStorage.setItem('score', 0);
 }
 
 var interwavePause = false;
@@ -309,7 +313,7 @@ function menuScreen() {
 function gameOverScreen() {
     textAlign(CENTER, CENTER);
     textSize(30);
-    text('Score: ' + score, cnv.hw, cnv.h / 4);
+    text('Score: ' + localStorage.getItem('score'), cnv.hw, cnv.h / 4);
     textSize(15);
     text('High Score: ' + highScore, cnv.hw, cnv.h / 4 + 50);
 
@@ -421,10 +425,10 @@ function gameScreen() {
     }
 
     textSize(20);
-    text("Score: " + score, cnv.hw, cnv.h / 8 + 50);
+    text("Score: " + localStorage.getItem('score'), cnv.hw, cnv.h / 8 + 50);
 
     drawButton(60, 25, 100, 30, "Return To Menu", function() {
-        if (score > highScore) { highScore = score; }
+        if (localStorage.getItem('score') > highScore) { highScore = localStorage.getItem('score'); }
         resetGame();
         scene = 'menu';
     }, '#333333', 3)
@@ -528,8 +532,8 @@ function gameScreen() {
         if ((cnv.h - alien.y) < 200) {
             scene = 'gameOver';
 
-            if (score > highScore) {
-                highScore = score;
+            if (Number(localStorage.getItem('score')) > highScore) {
+                highScore = Number(localStorage.getItem('score'));
             }
             
             //tell the other script score updated

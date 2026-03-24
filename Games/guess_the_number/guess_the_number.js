@@ -171,6 +171,14 @@ function leaveLobby() {
     lobbyData = {}
 }
 
+function resetLobby() {
+    window.dispatchEvent(new CustomEvent('scoreChanged', {
+        detail: { 
+            LobbyID: lobbyID,
+        }
+    }));
+}
+
 function MainLobby() {
     textStyle(NORMAL);
     textSize(70);
@@ -299,7 +307,7 @@ function Won() {
     text(lobbyData.players[winner].displayName + " Wins!", cnv.w/2, cnv.h/9*5.5);
     
     if (sessionStorage.getItem("UID") == lobbyID) {
-        drawButton(cnv.h/2, cnv.h/9*7, 230, 100, "Rematch", () => {}, 0, "#888888");
+        drawButton(cnv.h/2, cnv.h/9*7, 230, 100, "Rematch", () => { resetLobby() }, 0, "#888888");
     }
 }
 
@@ -456,9 +464,7 @@ function pageLoad() {
     
     
     // If a player closes the window whilst in a lobby - leave the lobby
-    window.addEventListener('beforeunload', (event) => {
-        leaveLobby();
-    });
+    window.addEventListener('beforeunload', leaveLobby);
 }
 
 
