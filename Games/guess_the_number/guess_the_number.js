@@ -1,8 +1,6 @@
 var scene = "MainLobby";
-var gameStarted = false;
 
 var lobbies = {}
-
 
 var lobbyData = {}
 var lobbyID = "";
@@ -66,7 +64,7 @@ function drawButton(x, y, w, h, buttonText, buttonFunction, borderThickness, fil
         fill(fillColour);
         strokeWeight(borderThickness);
         stroke("#000000");
-        drawingContext.setLineDash([0, 0]);        
+        drawingContext.setLineDash([0, 0]); 
         
         noStroke();
     }
@@ -172,11 +170,18 @@ function leaveLobby() {
 }
 
 function resetLobby() {
-    window.dispatchEvent(new CustomEvent('scoreChanged', {
-        detail: { 
-            LobbyID: lobbyID,
-        }
-    }));
+    if (sceneChanging == false) {
+        sceneChanging = true;
+
+        guess = 50;
+
+        window.dispatchEvent(new CustomEvent('resetLobby', {
+            detail: { 
+                LobbyID: lobbyID,
+            }
+        }));
+    }
+
 }
 
 function MainLobby() {
@@ -209,7 +214,7 @@ function MainLobby() {
 function NotStarted() {
     if (lobbyID == sessionStorage.getItem('UID')) {
         // Player is the host of their lobby
-        drawButton(cnv.w/2, cnv.h/7*5, 350, 75, "Start Game", startGame, 3, "#999999");
+        drawButton(cnv.w/2, cnv.h/7*5 + 100, 350, 75, "Start Game", startGame, 3, "#999999");
     } else {
         // Player is not the host of their lobby
         textSize(30);
@@ -307,8 +312,10 @@ function Won() {
     text(lobbyData.players[winner].displayName + " Wins!", cnv.w/2, cnv.h/9*5.5);
     
     if (sessionStorage.getItem("UID") == lobbyID) {
-        drawButton(cnv.h/2, cnv.h/9*7, 230, 100, "Rematch", () => { resetLobby() }, 0, "#888888");
+        drawButton(cnv.h/2, cnv.h/7*5, 350, 75, "Rematch", resetLobby, 0, "#999999");
     }
+
+    drawButton(cnv.w/2, cnv.h/7*5 + 100, 350, 75, "Leave Lobby", leaveLobby, 3, "#999999");
 }
 
 
