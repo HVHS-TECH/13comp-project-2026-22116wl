@@ -27,9 +27,16 @@ function setup() {
     scene = "MainLobby";
 }
 
+const COUNTDOWN_TIMER = 40;
+var buttonCountdown = 0;
+
 function draw() {
     background('#dedede');
     
+    // Button countdown is used to add some space in between clicks on buttons, since the button function runs each frame
+    // Each time you click the increase or decrease button it increases the countdown to the defined countdown timer, and disables the button until the countdown returns to zero
+    if (buttonCountdown > 0) { buttonCountdown -= 1; }
+
     if (scene == "waiting" || scene == "notStarted" || scene.includes("Turn") || scene.includes('Won')) {
         Game(); //draw in always visible things, such as the two PFPS, usernames, and the "vs" in between
     }
@@ -60,6 +67,7 @@ function hexToRgb(hex) {
 // buttonFunction = code ran when button clicked, no parameters no return
 function drawButton(x, y, w, h, buttonText, buttonFunction, borderThickness, fillColour, hoverColour, _textSize) {
     // only draw the background if a fill colour is passed in
+
     if (fillColour != null) {
         fill(fillColour);
         strokeWeight(borderThickness);
@@ -82,7 +90,11 @@ function drawButton(x, y, w, h, buttonText, buttonFunction, borderThickness, fil
         
         if (mouseIsPressed == true) {
             // clicked on button
-            buttonFunction();
+
+            if (buttonCountdown <= 0 ) {
+                buttonCountdown = COUNTDOWN_TIMER;
+                buttonFunction();
+            }
         }
     }
     
@@ -174,14 +186,13 @@ function resetLobby() {
         sceneChanging = true;
 
         guess = 50;
-
+        
         window.dispatchEvent(new CustomEvent('resetLobby', {
             detail: { 
                 LobbyID: lobbyID,
             }
         }));
     }
-
 }
 
 function MainLobby() {
@@ -327,14 +338,8 @@ function NotMyTurn() {
     text(lobbyData.players[scene.replace('Turn', "")].displayName + " is guessing", cnv.w/2, TEXT_HEIGHT);
 }
 
-
-const COUNTDOWN_TIMER = 6;
-var buttonCountdown = 0;
+const INC_BUTTON_COUNTDOWN = 6;
 function MyTurn() {
-    // Button countdown is used to add some space in between clicks on buttons, since the button function runs each frame
-    // Each time you click the increase or decrease button it increases the countdown to the defined countdown timer, and disables the button until the countdown returns to zero
-    if (buttonCountdown > 0) { buttonCountdown -= 1; }
-
     const GUESS_BUTTON_HEIGHT = cnv.h/9*5;
     const BUTTON_OFFSET = 120;
     const BUTTON_SIZE = 60;
@@ -344,12 +349,13 @@ function MyTurn() {
     textAlign(CENTER, CENTER); 
     text(guess, cnv.w/2, GUESS_BUTTON_HEIGHT);
 
+    
     drawButton(cnv.w/2 + BUTTON_OFFSET, GUESS_BUTTON_HEIGHT, BUTTON_SIZE, BUTTON_SIZE, ">", () => { 
-        if (buttonCountdown <= 0 && guess < max_guess ) { guess += 1; buttonCountdown = COUNTDOWN_TIMER; }
+        if ( guess < max_guess ) { guess += 1; buttonCountdown = INC_BUTTON_COUNTDOWN; } //specially short countdown for these
     }, 1, "#888888", null, 40);
 
     drawButton(cnv.w/2 - BUTTON_OFFSET, GUESS_BUTTON_HEIGHT, BUTTON_SIZE, BUTTON_SIZE, "<", () => { 
-        if (buttonCountdown <= 0 && guess > min_guess) { guess -= 1; buttonCountdown = COUNTDOWN_TIMER; }
+        if ( guess > min_guess) { guess -= 1; buttonCountdown = INC_BUTTON_COUNTDOWN; }
     }, 1, "#888888", null, 40);
 
     drawButton(cnv.w/2, GUESS_BUTTON_HEIGHT + 120, 250, 80, "Submit Guess", () => { makeGuess(guess); }, 0, "#888888");
