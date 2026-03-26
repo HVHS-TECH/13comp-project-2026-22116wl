@@ -2,6 +2,21 @@ import { fb_read, fb_write, getAuth, fb_valChanged } from '../fb.mjs';
 import { setName, banAccount, deleteAccount } from '../accountFunctions.mjs';
 
 
+async function isUserAdmin(UID) {
+    return new Promise((resolve) => {
+        (async () => {
+            const ADMIN = await fb_read('/admins/' + UID);
+
+            if (ADMIN == true) {
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        })();
+    });
+}
+
+
 //draw in the list of all users
 async function drawUserList(users) {
     const template = document.getElementById('template');
@@ -58,19 +73,36 @@ async function chooseFocusedUser() {
 //things to run when page first loads
 async function pageLoad() {
     //when data in /users/ changes, redraw list
+    
     //this function also runs on page load (don't know why but it saves me having to call it on two separate occasions)
+    
     await fb_valChanged("/Users/", drawUserList, 'displayName');
+
+
     
     const USER_FOCUS_LOAD_TIMEOUT = 1100;
     
     // when loading the page, choose a user to focus on
-    setTimeout(function() {
+
+    console.log('h3qkejrsnx');
+    setTimeout(async () => {
+        console.log('h3qkejrsnx213');
+        
+        const AUTH = await getAuth();
+        
+        if (AUTH.currentUser == null || await isUserAdmin(AUTH.currentUser.uid) != true) {
+            alert('YOU ARE NOT AN ADMIN GET OUT');
+            console.log('return');
+            window.location.href = "/index.html";
+        }
+
+
         chooseFocusedUser();
         document.getElementById('adminUserSettings').style.display = "block";
     }, USER_FOCUS_LOAD_TIMEOUT);
     
-
-
+    
+    
     // listener for detecting clicking off (unfocusing) the name inout box - change the user's name
     document.getElementById('adminNameChangeBox').querySelector('input').addEventListener('focusout', (event) => {
         var UID = sessionStorage.getItem('focusedUser');
