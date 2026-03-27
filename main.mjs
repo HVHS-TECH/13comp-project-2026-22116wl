@@ -183,23 +183,26 @@ async function pageLoad() {
         }
     };
 
-
     // add links to and configure each game on the home page
-    const elements = document.getElementsByClassName('gameIcon'); 
-    for (let i = 0; i < elements.length; i++) {
-        const element = elements[i];
-        
+    document.querySelectorAll('.gameIcon').forEach(async (element) => {
         element.addEventListener("click", () => {
             sessionStorage.setItem('game', element.id);
         });
-
+    
         element.querySelector("img").src = "./Games/" + element.id + "/Icon.png";
-
+    
         const metaData = await import(`./Games/${element.id}/gameMetaData.mjs`);
         element.querySelector(".gameName").innerHTML = metaData.gameName;
-    }
+    });
 
     if (await isUserLoggedIn()) {
+
+        document.querySelectorAll('.gameIcon').forEach(async (element) => {
+            console.log(element.parentElement);
+            element.parentElement.setAttribute("href", "./game.html");
+        });
+
+
         console.log('logged in function');
         login(false); //log in without asking for authentication
     } else {

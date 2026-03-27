@@ -250,18 +250,11 @@ function Game() {
     textAlign(CENTER);
     text(lobbyData.players.player1.displayName + "'s lobby", (cnv.w/2), 60);
 
-    drawButton(50, 50, 75, 75, "Return", () => { 
-        console.log('return');
-        leaveLobby();
-    }, 0, '#999999', '#8b4646');
-
-
+    drawButton(50, 50, 75, 75, "Return", leaveLobby, 0, '#999999', '#8b4646');
 
     // two and five sevenths of the horizontal width seems to be a good spacing
-
     const PFP_YPOS = cnv.h/5*1.6;
     const PFP_RADIUS = 230;
-
 
     // Draw in the PFP and the username for each player
     for (let playeri in lobbyData.players) {
@@ -293,7 +286,7 @@ function Game() {
 }
 
 
-
+// draw crown on winners pfp at win screen
 function drawCrown(winner) {
     const CROWN_YPOS = cnv.h/5*1.6 - 210;
     const CROWN_WIDTH = 270;
