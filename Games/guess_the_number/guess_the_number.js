@@ -18,7 +18,7 @@ var sceneChanging = false;
 
 function preload() {
     DEFAULT_PFP = loadImage("Assets/Images/notLoggedIn.png");
-    CROWN = loadImage("./Games/guess_the_number/Assets/Images/crown.png");
+    CROWN = loadImage("Games/guess_the_number/Assets/Images/crown.png");
 }
 
 function setup() {
