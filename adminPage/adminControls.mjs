@@ -27,7 +27,9 @@ async function drawUserList(users) {
         let user = users[UID];
         
         var userEntry = template.cloneNode(true);
+        
         userEntry.querySelector('p').innerHTML = user.displayName;
+        
         userEntry.querySelector('img').src = user.pfp;
         document.getElementById('scrollingUserList').appendChild(userEntry);
         userEntry.style.display = "block";

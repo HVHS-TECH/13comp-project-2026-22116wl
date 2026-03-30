@@ -18,9 +18,9 @@ var powerUpsApplied = 0;
 
 
 function preload() {
-    coinIMG = loadImage('/Games/game_that_works/Assets/Images/coin.png');
-    speedBoostIMG = loadImage('/Games/game_that_works/Assets/Images/SpeedBoost.png');
-    magnetIMG = loadImage("/Games/game_that_works/Assets/Images/Magnet.png");
+    coinIMG = loadImage('./Games/game_that_works/Assets/Images/coin.png');
+    speedBoostIMG = loadImage('./Games/game_that_works/Assets/Images/SpeedBoost.png');
+    magnetIMG = loadImage("./Games/game_that_works/Assets/Images/Magnet.png");
 }
 
 

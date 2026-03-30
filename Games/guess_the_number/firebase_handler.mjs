@@ -1,7 +1,6 @@
 // This script handles communication between FB and the p5 play script (using window events - non .mjs files can't import functions and p5 play only runs in .js files)
 import { fb_write, fb_read, fb_valChanged } from '../../fb.mjs'
 
-console.log(await fb_read("/Leaderboards/game_that_works"));
 
 async function joinLobby(event) {
     const HOST_UID = event.detail.LobbyUID;
