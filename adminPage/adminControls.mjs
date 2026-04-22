@@ -1,5 +1,5 @@
 import { fb_read, fb_write, getAuth, fb_valChanged } from '../fb.mjs';
-import { setName, banAccount, deleteAccount } from '../accountFunctions.mjs';
+import { setName, banAccount, deleteAccount, redirectToIndex } from '../accountFunctions.mjs';
 
 
 async function isUserAdmin(UID) {
@@ -74,6 +74,8 @@ async function chooseFocusedUser() {
 
 //things to run when page first loads
 async function pageLoad() {
+    redirectToIndex();
+
     //when data in /users/ changes, redraw list
     
     //this function also runs on page load (don't know why but it saves me having to call it on two separate occasions)

@@ -1,5 +1,6 @@
 
-import { fb_readSorted, fb_read, fb_write, fb_valChanged } from "./fb.mjs";
+import { fb_readSorted, fb_read, fb_write, fb_valChanged, getAuth } from "./fb.mjs";
+import { redirectToIndex } from "./accountFunctions.mjs";
 
 // define some global varuables
 var currentGame;
@@ -45,31 +46,41 @@ async function drawLeaderboard() {
 
 
 async function createLeaderboardEntry(game, player) {
-    var data = {
-        highScore: 0,
-        displayName: await fb_read("Users/" + player + "/displayName")
-    }
-
-    //hard coded other values for specific games set here
-    /*
-    if (game == "guess_the_number") {
-        data.losses = 0;
-        data.wins = 0;
-    }*/
-
-    await fb_write('Leaderboards/' + game + "/" + player, data);
-
-    return data;
+    return new Promise(async (resolve) => {
+        var data = {
+            highScore: 0,
+            displayName: await fb_read("Users/" + player + "/displayName")
+        }
+    
+        //hard coded other values for specific games set here
+        /*
+        if (game == "guess_the_number") {
+            data.losses = 0;
+            data.wins = 0;
+        }*/
+    
+        console.log('y1'); 
+        console.log(await getAuth().currentUser);
+        await fb_write('Leaderboards/' + game + "/" + player, data);
+        console.log('y2');
+    
+        resolve(data);
+    });
 }
 
 async function updateLeaderboardScore(event) {
     console.log('hei');
 
+    console.log(await getAuth());
+    console.log(sessionStorage.getItem("UID"));
+
     var leaderboardData = await fb_read('Leaderboards/' + currentGame + "/" + sessionStorage.getItem("UID"));
 
     if (leaderboardData == null) {
         // Create leaderboard entry for the player
+        console.log('x1');
         leaderboardData = await createLeaderboardEntry(currentGame, sessionStorage.getItem("UID"));
+        console.log('x2');
     }
 
     console.log(leaderboardData);
@@ -133,6 +144,8 @@ async function setUpGame() {
 
 // functions to run when the page loads
 async function pageLoad() {
+    await redirectToIndex();
+
     currentGame = sessionStorage.getItem('game');
     
     setUpGame();

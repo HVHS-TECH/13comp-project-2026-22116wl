@@ -49,6 +49,108 @@ function toggleSettings() {
 }
 
 
+// Verify the user inputs on the registration page
+function verifyRegistration() {
+    var valid;
+
+    // Username
+    let userName = document.getElementById('displayName').querySelector('input');
+    if ( userName.value == "" ) {
+        userName.placeholder = "Please enter a valid username"
+        userName.value = ""
+        valid = false;
+    }
+
+
+    // Mother Maiden Name
+    let motherName  = document.getElementById('motherMaidenName').querySelector('input');
+    if ( motherName.value == "" ) {
+        motherName.placeholder = "Please enter a valid name"
+        motherName.value = ""
+        valid = false;
+    }
+
+
+    // First Pet
+    let pet = document.getElementById('firstPet').querySelector('input')
+    if ( pet.value == "" ) {
+        pet.placeholder = "Please enter a valid name"
+        pet.value = ""
+        valid = false;
+    }
+
+
+    // Card Number
+    let cardNumberInp = document.getElementById('cardNumber').querySelector('input');
+    let cardNumber = cardNumberInp.value.replaceAll(' ', "");
+    if ( isNaN(Number(cardNumber)) || (cardNumber.length != 16)) {
+        cardNumberInp.placeholder = "Please enter a valid card number"
+        cardNumberInp.value = ""
+        valid = false;
+    }
+
+
+    // Expiration
+    let expiration = document.getElementById('expiration').querySelector('input');
+    if ( expiration.value .includes ("/") == false || expiration.value.length != 4 ) {
+        expiration.placeholder = "Please enter a date in MM/YY format"
+        expiration.value = ""
+        valid = false;
+    } else {
+        // split date into year and month
+        const DATES = expiration.value.split("/");
+
+        // one of the dates are not a number
+        for (let i in DATES) {
+            if ( isNaN(Number(DATES[i])) || DATES[i].length != 2 ) {
+                valid = false;
+                expiration.placeholder = "Please enter a valid date";
+                expiration.value = "";
+            }
+        }
+
+
+        // Month is invalid
+        if ( Number(DATES[0]) < 1 || Number(DATES[0]) > 12) {
+            valid = false;
+            expiration.placeholder = "Please enter a valid date";
+            expiration.value = "";
+        }
+
+        // Year is invalid
+        if ( Number(DATES[1]) < 26 || Number(DATES[1]) > 40) {
+            valid = false;
+            expiration.placeholder = "Please enter a valid date";
+            expiration.value = "";
+        }
+
+    }
+
+
+    // CVV
+    let CVV = document.getElementById('CVV').querySelector('input');
+    if ( isNaN(Number(CVV.value)) || CVV.value.length != 3 ) {
+        document.getElementById('CVV').querySelector('input').placeholder = "Please enter a valid CVV"
+        CVV.value = "";
+        valid = false;
+    }
+
+    // Pin
+    let pin = document.getElementById('pin').querySelector('input');
+    if ( isNaN(Number(pin.value)) || pin.value.length != 4 ) {
+        pin.placeholder = "Please enter a valid PIN";
+        pin.value = "";
+        valid = false;
+    }
+
+    if (valid == false) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+
 // configure page for a logged in user
 async function login(authenticate) {
     //autenticate parameter is used for logging in after registraion. Run function after registration without doing another auth popup
@@ -64,10 +166,11 @@ async function login(authenticate) {
     document.getElementById('loginBlur').style.display = "none";
     
     // had to used timeout because getAuth() has a weird problem
+    var auth = await getAuth();
     setTimeout(async function() {
-        var auth = await getAuth();
         const UID = auth.currentUser.uid;
         
+        sessionStorage.setItem('UID', UID);
         
         console.log('logged in as ' + auth.currentUser.displayName);
         const pfp = getAuth().currentUser.photoURL;
@@ -83,7 +186,7 @@ async function login(authenticate) {
             document.getElementById('adminButton').style.display = 'block';
         }
 
-    }, 1000);
+    }, 600);
 }
 
 
@@ -130,6 +233,12 @@ async function register() {
 async function createAccount() {
     const AUTH = getAuth();
 
+    let validRegistration = verifyRegistration();
+    console.log(validRegistration);
+    if (validRegistration == false) {
+        return;
+    }
+
     var userData = {};
 
     //add google auth data which is to be stored
@@ -151,17 +260,14 @@ async function createAccount() {
 }
 
 
-// 
 async function changeNameClicked() {
     document.getElementById('nameChangeBox').querySelector('input').focus();
 }
 
 
-
 async function isUserLoggedIn() {
     console.log(sessionStorage.getItem("UID"));
     if (sessionStorage.getItem('UID') != null) {
-        console.log('logged in');
         return(true);
     } else {
         return(false);
@@ -206,7 +312,7 @@ async function pageLoad() {
         console.log('logged in function');
         login(false); //log in without asking for authentication
     } else {
-        document.getElementById('loginBlur').style.display = "block"; // hide side by putting up blur
+        logOut();
     }
 }
 

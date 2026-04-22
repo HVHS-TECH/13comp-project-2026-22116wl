@@ -45,49 +45,43 @@ async function fb_authenticate() {
     
     // The following makes Google ask the user to select the account
 
-    return new Promise((resolve) => {
-        (async () => {
+    return new Promise(async (resolve) => {
+        PROVIDER.setCustomParameters({
+            prompt: 'select_account'
+        });
 
-            PROVIDER.setCustomParameters({
-                prompt: 'select_account'
-            });
-    
-            try {
-                const result = await signInWithPopup(AUTH, PROVIDER);
-    
-                const UID = result.user.uid;
-                
-                resolve(result);
-    
-            } catch (error) {
-                console.log('error!');
-                console.log(error);
-                resolve(null);
-    
-            }
+        try {
+            const result = await signInWithPopup(AUTH, PROVIDER);
+            const UID = result.user.uid;
+            resolve(result);
 
-        })();
+        } catch (error) {
+            console.log('error!');
+            console.log(error);
+            resolve(null);
+
+        }
     });
 }
-
 
 function fb_authChanged() {
     const AUTH = getAuth();
-
     onAuthStateChanged(AUTH, (user) => {
         if (user) {
-            console.log(AUTH.currentUser.displayName + ' logged in');
-            sessionStorage.setItem('UID', AUTH.currentUser.uid);
-        } else {
-            console.log('log out');
-            sessionStorage.removeItem('UID');
+            sessionStorage.setItem("UID", AUTH.currentUser.uid);
+        } else {    
+            sessionStorage.removeItem("UID");
+
         }
     }, (error) => {
-        console.log('error!');
+        console.log('error with log changed');
         console.log(error);
     });
 }
+
 fb_authChanged();
+
+
 
 function fb_logout() {
     const AUTH = getAuth();
@@ -242,4 +236,4 @@ async function fb_valChanged(path, callback, orderKey = null) {
 
 
 
-export { fb_initialise, fb_authenticate, fb_authChanged, fb_logout, fb_write, fb_read, fb_update, fb_readSorted, fb_delete, fb_valChanged, getAuth };
+export { fb_initialise, fb_authenticate, fb_logout, fb_write, fb_read, fb_update, fb_readSorted, fb_delete, fb_valChanged, getAuth };

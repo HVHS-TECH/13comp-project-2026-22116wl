@@ -47,38 +47,33 @@
 	font-weight: bold;
 }
 
+
+
+
 #registration {
 	display: none;
 }
 
-#fields div {
-	display: flex;
-	margin-top: 30px;
-	margin-bottom: 10px;
-}
-
-#fields div input {
+#registration input {
 	width: 260px;
 	height: 35px;
 	font-size: 20px;
+	line-height: 35px;
 	border: none;
 	border-radius: 2px;
 	background-color: rgb(240, 240, 240);
-
+	
 	margin-right: calc(50vw - 320px) !important;
 	margin-left: 20px !important;
 }
 
-#fields {
-	overflow-y: auto;
-	max-height: 550px;
-	height: 50vh;
-
-	scrollbar-width: none;
-	-ms-overflow-style: none;
+#registration input::placeholder {
+	font-size: 10px;
+	color: rgb(134, 50, 50);
+	line-height: 35px;
 }
 
-#fields div p { 
+#registration p { 
 	width: 400px;
 	font-size: 22px;
 	margin: 0px;
@@ -93,6 +88,24 @@
 	height: 60px !important;
 	margin-top: 5vh;
 }
+
+#fields {
+	overflow-y: auto;
+	max-height: 550px;
+	height: 50vh;
+
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+}
+
+#fields div {
+	display: flex;
+	margin-top: 30px;
+	margin-bottom: 10px;
+}
+
+
+
 
 #accountSettingsButton {
     width: 50px;
@@ -183,7 +196,7 @@
 	margin-bottom: 40px;
 
 	border-radius: 100%;
-	border: 3px solid gray;
+	border: 3px solid black;
 	width: 25%;
 }
 
@@ -443,6 +456,13 @@ header #leftButtonSpace {
 #Leaderboard ol li {
 	padding-top: 5px;
 	padding-bottom: 5px;
+}
+
+#Leaderboard .leaderboardUsername {
+	width: 80%;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .leaderboardUsername {

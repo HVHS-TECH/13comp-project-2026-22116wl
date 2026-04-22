@@ -15,6 +15,15 @@ function isNameInvalid(name) {
 }
 
 
+
+// If the user loads a page from a link that is not the homepage, redirect them
+// Function is called at the start of each JS file for a page on eahc page other than index
+function redirectToIndex() {
+    if (sessionStorage.getItem('UID') == null) {
+        window.location.href = "../index.html";
+    }
+}
+
 // Change the users display name in the database
 // UID = users who's name is being changed
 // name = user's new name
@@ -125,4 +134,4 @@ async function banAccount(UID) {
     await fb_write('/bannedUsers/' + UID, true);
 }
 
-export { setName, deleteAccount, banAccount, logOut };
+export { setName, deleteAccount, banAccount, logOut, redirectToIndex };
