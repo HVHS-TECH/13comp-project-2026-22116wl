@@ -64,6 +64,8 @@ async function fb_authenticate() {
     });
 }
 
+
+/*
 function fb_authChanged() {
     const AUTH = getAuth();
     onAuthStateChanged(AUTH, (user) => {
@@ -71,7 +73,6 @@ function fb_authChanged() {
             sessionStorage.setItem("UID", AUTH.currentUser.uid);
         } else {    
             sessionStorage.removeItem("UID");
-
         }
     }, (error) => {
         console.log('error with log changed');
@@ -80,6 +81,7 @@ function fb_authChanged() {
 }
 
 fb_authChanged();
+*/
 
 
 

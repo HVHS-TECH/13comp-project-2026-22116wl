@@ -92,7 +92,7 @@ function verifyRegistration() {
 
     // Expiration
     let expiration = document.getElementById('expiration').querySelector('input');
-    if ( expiration.value .includes ("/") == false || expiration.value.length != 4 ) {
+    if ( expiration.value .includes ("/") == false || expiration.value.length != 5 ) {
         expiration.placeholder = "Please enter a date in MM/YY format"
         expiration.value = ""
         valid = false;
@@ -104,23 +104,25 @@ function verifyRegistration() {
         for (let i in DATES) {
             if ( isNaN(Number(DATES[i])) || DATES[i].length != 2 ) {
                 valid = false;
-                expiration.placeholder = "Please enter a valid date";
+                expiration.placeholder = "Please enter a valid date (MM/YY)";
                 expiration.value = "";
             }
+        }
+
+
+        
+        // Year is invalid
+        if ( Number(DATES[1]) < 26) {
+            valid = false;
+            expiration.placeholder = "Year cannot be in the past (MM/YY)";
+            expiration.value = "";
         }
 
 
         // Month is invalid
         if ( Number(DATES[0]) < 1 || Number(DATES[0]) > 12) {
             valid = false;
-            expiration.placeholder = "Please enter a valid date";
-            expiration.value = "";
-        }
-
-        // Year is invalid
-        if ( Number(DATES[1]) < 26 || Number(DATES[1]) > 40) {
-            valid = false;
-            expiration.placeholder = "Please enter a valid date";
+            expiration.placeholder = "Please enter a valid month (MM/YY)";
             expiration.value = "";
         }
 
@@ -301,14 +303,16 @@ async function pageLoad() {
         element.querySelector(".gameName").innerHTML = metaData.gameName;
     });
 
+
+    // Activate page if user is logged in, hide if not
+    
+    document.querySelectorAll('.gameIcon').forEach(async (element) => {
+        console.log(element.parentElement);
+        element.parentElement.setAttribute("href", "./game.html");
+    });
+
+
     if (await isUserLoggedIn()) {
-
-        document.querySelectorAll('.gameIcon').forEach(async (element) => {
-            console.log(element.parentElement);
-            element.parentElement.setAttribute("href", "./game.html");
-        });
-
-
         console.log('logged in function');
         login(false); //log in without asking for authentication
     } else {

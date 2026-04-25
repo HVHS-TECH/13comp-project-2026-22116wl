@@ -67,6 +67,7 @@ async function setName(UID, name) {
 // Log the user out of their google auth, and reconfigure the user interface to a logged out state
 async function logOut() {
     await fb_logout();
+    console.log('logging out');
 
     sessionStorage.removeItem('UID');
 
@@ -108,12 +109,12 @@ async function deleteAccount(UID, _prompt) {
     }    
     
     await fb_write("/Users/" + UID, null);
-
-
+    
+    
     //if deleting OWN account, then log out
     if (UID == sessionStorage.getItem('UID')) {
-        window.location.href = "./index.html";
         logOut();
+        window.location.href = "./index.html";
         console.log('deleting self');
     }
 }
