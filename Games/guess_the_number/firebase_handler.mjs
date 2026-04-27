@@ -1,13 +1,18 @@
 // This script handles communication between FB and the p5 play script (using window events - non .mjs files can't import functions and p5 play only runs in .js files)
-import { fb_write, fb_read, fb_valChanged } from '../../fb.mjs'
+import { fb_write, fb_read, fb_valChanged, getAuth } from '../../fb.mjs'
 
 
 async function joinLobby(event) {
     const HOST_UID = event.detail.LobbyUID;
     const PLAYER_UID = event.detail.PlayerUID;
     
+
+    console.log('join lobby');
     if (HOST_UID == PLAYER_UID) {
         //when the two match it means a new lobby is being created
+
+        var userData = await fb_read("Users/" + PLAYER_UID);
+        console.log(await fb_read("Users/" + PLAYER_UID));
 
         await fb_write("/Lobbies/guess_the_number/" + PLAYER_UID, {
             mysteryNumber: 0,
@@ -20,8 +25,8 @@ async function joinLobby(event) {
             players: {
                 player1: {
                     UID: PLAYER_UID,
-                    displayName: await fb_read("Users/" + PLAYER_UID + "/displayName"),
-                    pfp: await fb_read("Users/" + PLAYER_UID + "/pfp"),
+                    displayName: userData['displayName'],
+                    pfp: userData['pfp'],
                     guess: 0
                 },
 
@@ -35,8 +40,10 @@ async function joinLobby(event) {
         });
     } else if (await fb_read("/Lobbies/guess_the_number/" + HOST_UID + '/players/player2/UID') == "") {
         //Join as player two
-
         var userData = await fb_read("Users/" + PLAYER_UID);
+
+        console.log(PLAYER_UID);
+        console.log(userData);
 
         await fb_write("/Lobbies/guess_the_number/" + HOST_UID + "/players/player2", {
             UID: PLAYER_UID,

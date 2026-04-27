@@ -65,14 +65,14 @@ async function fb_authenticate() {
 }
 
 
-/*
+
 function fb_authChanged() {
     const AUTH = getAuth();
     onAuthStateChanged(AUTH, (user) => {
         if (user) {
-            sessionStorage.setItem("UID", AUTH.currentUser.uid);
+            //sessionStorage.setItem("UID", AUTH.currentUser.uid);
         } else {    
-            sessionStorage.removeItem("UID");
+            //sessionStorage.removeItem("UID");
         }
     }, (error) => {
         console.log('error with log changed');
@@ -81,7 +81,7 @@ function fb_authChanged() {
 }
 
 fb_authChanged();
-*/
+
 
 
 
@@ -156,6 +156,7 @@ async function fb_read(path) {
     
         }).catch((error) => {
             console.log('error in reading database');
+            console.log(error);
             resolve(null);
         });
     });

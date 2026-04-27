@@ -9,6 +9,7 @@ var gameAttempt = 0; //used on backend to differentiate different games to the a
 
 const BULLET_SPEED = 15;
 const BULLET_FIRE_RATE = 10; //frame gap between fires, lower # = more frequent
+var bulletCountdown = BULLET_FIRE_RATE; 
 
 const SIDEGUN_RECHARGE_RATE = 0.5;
 const LAZER_DEPLETION_RATE = 2;
@@ -433,7 +434,12 @@ function gameScreen() {
         scene = 'menu';
     }, '#333333', 3)
 
-    if (kb.pressing('space') && frameCount%BULLET_FIRE_RATE == 0 && interwavePause == false) {
+    if (bulletCountdown > 0) {
+        bulletCountdown -= 1;
+    }
+
+    if (kb.pressing('space') && bulletCountdown == 0 && interwavePause == false) {
+        bulletCountdown = BULLET_FIRE_RATE;
         spawnBullet(mainGunTurret, false);
     }
 
