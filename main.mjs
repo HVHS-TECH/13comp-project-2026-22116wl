@@ -1,6 +1,6 @@
 console.log('script connected');
 /**************************************************************/
-// Base written by Wilfred Leicester, Term 2 2025, edited and changed throughout in 2026
+// Some code written by Wilfred Leicester - Term 2 2025, majorly edited and changed throughout in 2026
 /**************************************************************/
 
 import { fb_authenticate, fb_read, fb_write, getAuth } from './fb.mjs';
@@ -51,8 +51,8 @@ function toggleSettings() {
 
 // Verify the user inputs on the registration page
 function verifyRegistration() {
-    var valid;
-
+    var valid = true; //Assume true unless invalid
+    
     // Username
     let userName = document.getElementById('displayName').querySelector('input');
     if ( userName.value == "" ) {
@@ -127,7 +127,7 @@ function verifyRegistration() {
         }
 
     }
-
+    
 
     // CVV
     let CVV = document.getElementById('CVV').querySelector('input');
@@ -145,11 +145,7 @@ function verifyRegistration() {
         valid = false;
     }
 
-    if (valid == false) {
-        return false;
-    } else {
-        return true;
-    }
+    return valid;
 }
 
 
@@ -167,7 +163,7 @@ async function login(authenticate) {
 
     document.getElementById('loginBlur').style.display = "none";
     
-    // had to used timeout because getAuth() has a weird problem
+    // had to used timeout because getAuth() has a weird problem (returns null right on page load)
     var auth = await getAuth();
     setTimeout(async function() {
         const UID = auth.currentUser.uid;
@@ -226,9 +222,8 @@ async function register() {
     document.getElementById('landing').style.display = "none";
     document.getElementById('registration').style.display = "block";
 
-    //set display name input box default as google display name (for convenience)
+    //set display name registration field to google display name as default (for convenience)
     document.getElementById('displayName').querySelector('input').value = auth.user.displayName;
-
 }
 
 //create the account in firebase
@@ -237,7 +232,7 @@ async function createAccount() {
 
     let validRegistration = verifyRegistration();
     console.log(validRegistration);
-    if (validRegistration == false) {
+    if (!validRegistration) {
         return;
     }
 
@@ -277,14 +272,27 @@ async function isUserLoggedIn() {
 }
 
 
+const PANEL = document.getElementById("accountDetails");
+function toggleAccountDetailsPanel() {
+    if (PANEL.style.display == "none") {
+        PANEL.style.display = 'block';
+        document.querySelector('#detailsPopout').innerHTML = "Account Details ▼";
+    } else {
+        PANEL.style.display = 'none';
+        document.querySelector('#detailsPopout').innerHTML = "Account Details ▲";
+    }
+}
+
 
 // functions to run and listners to create when the page loads
 async function pageLoad() {
+    // When player click off name change box, change the name
     document.getElementById('nameChangeBox').querySelector('input').addEventListener('focusout', () => {
         let newName = document.getElementById('nameChangeBox').querySelector('input').value;
         setName(sessionStorage.getItem('UID'), newName);
     });
     
+    // If player presses enter, unfocus the name change box (to change the name)
     document.onkeypress = function (event) {
         if (event.key == "Enter") {
             document.getElementById('nameChangeBox').querySelector('input').blur();
@@ -303,8 +311,6 @@ async function pageLoad() {
         element.querySelector(".gameName").innerHTML = metaData.gameName;
     });
 
-
-    // Activate page if user is logged in, hide if not
     
     document.querySelectorAll('.gameIcon').forEach(async (element) => {
         console.log(element.parentElement);
@@ -316,7 +322,7 @@ async function pageLoad() {
         console.log('logged in function');
         login(false); //log in without asking for authentication
     } else {
-        logOut();
+        logOut(); //Make sure sessionStorage UID and google auth match upon loading when logged out
     }
 }
 
@@ -330,3 +336,4 @@ window.register = register;
 window.logOut = logOut;
 window.login = login;
 window.toggleSettings = toggleSettings;
+window.toggleAccountDetailsPanel = toggleAccountDetailsPanel;

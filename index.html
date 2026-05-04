@@ -103,6 +103,18 @@
                     <p class = 'gameName'>Guess the Number</p>
                 </div>
             </a>
+
+            
+
+            <!--
+            <a>
+                <div id = "dungeon_divers" class = 'gameIcon'>
+                    <img>
+                    <p class = 'gameName'>Dungeon Divers</p>
+                </div>
+            </a>
+            -->
+
         </div>
     </div>
 
@@ -117,6 +129,13 @@
             <div></div>
             <input>
             <button onclick = "changeNameClicked()"><img src = "./Assets/Images/EditIcon.png"></button>
+        </div>
+
+        <!--▼▲ -->
+        <button id = "detailsPopout" onclick = "toggleAccountDetailsPanel()">Account Details ▲</button>
+
+        <div style = "display: none" id = 'accountDetails'>
+            <p>hello</p>
         </div>
 
         <button onclick="logOut()">Log Out</button>

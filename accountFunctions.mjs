@@ -8,7 +8,11 @@ import { fb_write, fb_read , fb_logout } from "./fb.mjs";
 
 function isNameInvalid(name) {
     if (name.length < 3) {
-        return true; 
+        return "tooShort"; 
+    }
+
+    if (name.length > 20) {
+        return "tooLong"; 
     }
 
     return false;
@@ -29,8 +33,12 @@ function redirectToIndex() {
 // name = user's new name
 async function setName(UID, name) {
 
-    if (isNameInvalid(name)) {
+    var invalid = isNameInvalid(name);
+    if (invalid == "tooShort") {
         alert('Name cannot be less than 3 characters');
+        return;
+    } else if (invalid == "tooLong") {
+        alert('Name cannot be more than 20 characters');
         return;
     }
     
@@ -89,8 +97,9 @@ async function logOut() {
 // _prompt = true/false of whether the website should prompt them "Are you sure?"
 async function deleteAccount(UID, _prompt) {
     if (_prompt != false) {
-        var _delete = prompt('Delete Account?');
-        if (_delete == null) {
+        var _delete = confirm('Delete Account?');
+        console.log(_delete);
+        if (!_delete) {
             return;
         }
     }
@@ -125,7 +134,7 @@ async function deleteAccount(UID, _prompt) {
 async function banAccount(UID) {
 
     // Double check whether to go ahead
-    if (prompt('Permenantly Ban This Account?') == null) {
+    if (!confirm('Permenantly Ban This Account?')) {
         return;
     }
 

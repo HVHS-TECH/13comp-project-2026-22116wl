@@ -28,7 +28,7 @@ h2 {
 
 #scrollingUserList {
 	overflow-y: scroll;
-	width: 92%;
+	width: 85%;
 	height: calc(100% - 68px);
 	padding-left: 20px;
 }
@@ -71,6 +71,10 @@ h2 {
 	line-height: 40px;
 
 	font-size: 22px;
+
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 

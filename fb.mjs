@@ -72,7 +72,7 @@ function fb_authChanged() {
         if (user) {
             //sessionStorage.setItem("UID", AUTH.currentUser.uid);
         } else {    
-            //sessionStorage.removeItem("UID");
+            sessionStorage.removeItem("UID");
         }
     }, (error) => {
         console.log('error with log changed');
