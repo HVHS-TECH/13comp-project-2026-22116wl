@@ -4,7 +4,7 @@ console.log('script connected');
 /**************************************************************/
 
 import { fb_authenticate, fb_read, fb_write, getAuth } from './fb.mjs';
-import { setName, deleteAccount, logOut } from "./accountFunctions.mjs";
+import { changeDetail, deleteAccount, logOut, validateDetail } from "./accountFunctions.mjs";
 
 
 // Function to toggle the account settings panel popout
@@ -53,97 +53,16 @@ function toggleSettings() {
 function verifyRegistration() {
     var valid = true; //Assume true unless invalid
     
-    // Username
-    let userName = document.getElementById('displayName').querySelector('input');
-    if ( userName.value == "" ) {
-        userName.placeholder = "Please enter a valid username"
-        userName.value = ""
-        valid = false;
-    }
-
-
-    // Mother Maiden Name
-    let motherName  = document.getElementById('motherMaidenName').querySelector('input');
-    if ( motherName.value == "" ) {
-        motherName.placeholder = "Please enter a valid name"
-        motherName.value = ""
-        valid = false;
-    }
-
-
-    // First Pet
-    let pet = document.getElementById('firstPet').querySelector('input')
-    if ( pet.value == "" ) {
-        pet.placeholder = "Please enter a valid name"
-        pet.value = ""
-        valid = false;
-    }
-
-
-    // Card Number
-    let cardNumberInp = document.getElementById('cardNumber').querySelector('input');
-    let cardNumber = cardNumberInp.value.replaceAll(' ', "");
-    if ( isNaN(Number(cardNumber)) || (cardNumber.length != 16)) {
-        cardNumberInp.placeholder = "Please enter a valid card number"
-        cardNumberInp.value = ""
-        valid = false;
-    }
-
-
-    // Expiration
-    let expiration = document.getElementById('expiration').querySelector('input');
-    if ( expiration.value .includes ("/") == false || expiration.value.length != 5 ) {
-        expiration.placeholder = "Please enter a date in MM/YY format"
-        expiration.value = ""
-        valid = false;
-    } else {
-        // split date into year and month
-        const DATES = expiration.value.split("/");
-
-        // one of the dates are not a number
-        for (let i in DATES) {
-            if ( isNaN(Number(DATES[i])) || DATES[i].length != 2 ) {
-                valid = false;
-                expiration.placeholder = "Please enter a valid date (MM/YY)";
-                expiration.value = "";
-            }
-        }
-
-
+    document.getElementById('fields').querySelectorAll("div").forEach(element => {
+        var input = element.querySelector('input');
         
-        // Year is invalid
-        if ( Number(DATES[1]) < 26) {
+        var fieldValid = validateDetail(input.value, element.id); // returns true, or a string error message
+        if (fieldValid != true) {
+            input.placeholder = fieldValid;
             valid = false;
-            expiration.placeholder = "Year cannot be in the past (MM/YY)";
-            expiration.value = "";
+            input.value = "";
         }
-
-
-        // Month is invalid
-        if ( Number(DATES[0]) < 1 || Number(DATES[0]) > 12) {
-            valid = false;
-            expiration.placeholder = "Please enter a valid month (MM/YY)";
-            expiration.value = "";
-        }
-
-    }
-    
-
-    // CVV
-    let CVV = document.getElementById('CVV').querySelector('input');
-    if ( isNaN(Number(CVV.value)) || CVV.value.length != 3 ) {
-        document.getElementById('CVV').querySelector('input').placeholder = "Please enter a valid CVV"
-        CVV.value = "";
-        valid = false;
-    }
-
-    // Pin
-    let pin = document.getElementById('pin').querySelector('input');
-    if ( isNaN(Number(pin.value)) || pin.value.length != 4 ) {
-        pin.placeholder = "Please enter a valid PIN";
-        pin.value = "";
-        valid = false;
-    }
+    });
 
     return valid;
 }
@@ -178,7 +97,12 @@ async function login(authenticate) {
         document.getElementById("settingsPhoto").src = pfp;
 
         var userData = await fb_read("/Users/" + UID);
-        document.getElementById("nameChangeBox").querySelector('input').value = userData.displayName;
+        
+        
+        document.querySelectorAll('.detailsEntryField').forEach(element => { 
+            element.querySelector('input').value = userData[element.id];
+        });
+
         
         if (await fb_read('/admins/' + UID) != null) {
             document.getElementById('adminButton').style.display = 'block';
@@ -257,8 +181,8 @@ async function createAccount() {
 }
 
 
-async function changeNameClicked() {
-    document.getElementById('nameChangeBox').querySelector('input').focus();
+async function changeDetailClicked(element) {
+    element.parentElement.querySelector('input').focus();
 }
 
 
@@ -287,15 +211,24 @@ function toggleAccountDetailsPanel() {
 // functions to run and listners to create when the page loads
 async function pageLoad() {
     // When player click off name change box, change the name
-    document.getElementById('nameChangeBox').querySelector('input').addEventListener('focusout', () => {
-        let newName = document.getElementById('nameChangeBox').querySelector('input').value;
-        setName(sessionStorage.getItem('UID'), newName);
+    document.querySelectorAll('.detailsEntryField').forEach(element => {
+
+        element.querySelector('input').addEventListener('focusout', () => {
+            let newName = element.querySelector('input').value;
+            changeDetail(sessionStorage.getItem('UID'), newName, element.id);
+        });
     });
+
+
+
+
     
     // If player presses enter, unfocus the name change box (to change the name)
     document.onkeypress = function (event) {
         if (event.key == "Enter") {
-            document.getElementById('nameChangeBox').querySelector('input').blur();
+            document.querySelectorAll('.detailsEntryField').forEach(element => {
+                element.querySelector('input').blur();
+            });
         }
     };
 
@@ -331,7 +264,7 @@ pageLoad();
 
 window.createAccount = createAccount;
 window.deleteAccount = deleteAccount;
-window.changeNameClicked = changeNameClicked;
+window.changeDetailClicked = changeDetailClicked;
 window.register = register;
 window.logOut = logOut;
 window.login = login;

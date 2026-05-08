@@ -6,20 +6,6 @@
 import { fb_write, fb_read , fb_logout } from "./fb.mjs";
 
 
-function isNameInvalid(name) {
-    if (name.length < 3) {
-        return "tooShort"; 
-    }
-
-    if (name.length > 20) {
-        return "tooLong"; 
-    }
-
-    return false;
-}
-
-
-
 // If the user loads a page from a link that is not the homepage, redirect them
 // Function is called at the start of each JS file for a page on eahc page other than index
 function redirectToIndex() {
@@ -28,47 +14,125 @@ function redirectToIndex() {
     }
 }
 
-// Change the users display name in the database
-// UID = users who's name is being changed
-// name = user's new name
-async function setName(UID, name) {
+// Take a registration detail, check if it is valid
+function validateDetail(detail, detailType) {
+    // Username + Mother's Maiden Name + First pet
+    if (detailType == 'displayName' || detailType == "motherMaidenName" || detailType == "firstPet") {
+        if (detail == "") {
+            return "Please enter a valid name";
+        }
 
-    var invalid = isNameInvalid(name);
-    if (invalid == "tooShort") {
-        alert('Name cannot be less than 3 characters');
-        return;
-    } else if (invalid == "tooLong") {
-        alert('Name cannot be more than 20 characters');
-        return;
-    }
-    
-    
-    // Change display name leaderboard entires in all games for this user
-    var leaderboards = await fb_read("/Leaderboards/");
-    for (let game in leaderboards) {
-        if (leaderboards[game][UID] != null) {
-            fb_write("/Leaderboards/" + game + "/" + UID + "/displayName", name);
+        if ( detail.length < 3 ) {
+            return "Name cannot be less than 3 characters";
+        }
+
+        if (detail.length > 20) {
+            return 'Name cannot be less more than 20 characters';
         }
     }
 
-    // Change display name for any lobbies player might be in
-    var lobbies = await fb_read("/Lobbies/");
-    for (let game in lobbies) {
-        if (game == 'placeholder') { continue; } //skip the placeholder
+    // Card Number
+    if (detailType == "cardNumber") {
+        detail = detail.replaceAll(" ", "");
 
-        for (let lobbyUID in lobbies[game]) {
-            let lobby = lobbies[game][lobbyUID];
+        if ( isNaN(Number(detail)) || (detail.length != 16)) {
+            return "Please enter a valid card number";
+        }
+    }
+
+
+    // Expiration
+    if (detailType == 'expiration') {
+        if ( detail.includes ("/") == false || detail.length != 5 ) {
+            return "Please enter a date in MM/YY format";
+        } else {
+            // split date into year and month
+            const DATES = detail.split("/");
+    
+            // one of the dates are not a number
+            for (let i in DATES) {
+                if ( isNaN(Number(DATES[i])) || DATES[i].length != 2 ) {
+                    return "Please enter a valid date (MM/YY)";
+                }
+            }
             
-            //loop through each player in the lobby
-            for (let playeri in lobby.players) {
-                if (lobby.players[playeri].UID == UID) {
-                    fb_write("/Lobbies/" + game + "/" + lobbyUID + "/players/" + playeri + "/displayName", name);
+            // Month is invalid
+            if ( Number(DATES[0]) < 1 || Number(DATES[0]) > 12) {
+                return "Please enter a valid month (MM/YY)";
+            }
+
+
+            // Year is in the past
+            if ( Number(DATES[1]) < 26) {
+                return "Year cannot be in the past (MM/YY)";
+            }
+        }
+    }    
+
+    // CVV
+    if (detailType == "CVV") {
+        if ( isNaN(Number(detail)) || detail.length != 3 ) {
+            return "Please enter a valid CVV";
+        }
+    }
+
+
+    // Pin
+    if (detailType == "pin") {
+        if ( isNaN(Number(detail)) || detail.length != 4 ) {
+            return "Please enter a valid PIN";
+        }
+    }
+
+    return true;
+}
+
+
+// Change the users display name in the database
+// UID = users who's name is being changed
+// name = user's new name
+async function changeDetail(UID, newDetail, detailType) {
+    console.log(detailType);
+    console.log(UID);
+    var invalid = validateDetail(newDetail, detailType); //Returns true, or an error message string
+    if (invalid != true) {
+        alert(invalid);
+        return;
+    }
+    
+
+    if (detailType == "displayName") {
+        // Change display name leaderboard entires in all games for this user
+        var leaderboards = await fb_read("/Leaderboards/");
+        for (let game in leaderboards) {
+            if (leaderboards[game][UID] != null) {
+                fb_write("/Leaderboards/" + game + "/" + UID + "/displayName", newDetail);
+            }
+        }
+
+
+        // Change display name for any lobbies player might be in
+        var lobbies = await fb_read("/Lobbies/");
+        for (let game in lobbies) {
+            if (game == 'placeholder') { continue; } //skip the placeholder
+    
+            for (let lobbyUID in lobbies[game]) {
+                let lobby = lobbies[game][lobbyUID];
+                
+                //loop through each player in the lobby
+                for (let playeri in lobby.players) {
+                    if (lobby.players[playeri].UID == UID) {
+                        fb_write("/Lobbies/" + game + "/" + lobbyUID + "/players/" + playeri + "/displayName", newDetail);
+                    }
                 }
             }
         }
     }
 
-    fb_write('/Users/' + UID + '/displayName', name);
+    console.log(UID);
+    console.log(detailType)
+
+    fb_write('/Users/' + UID + '/' + detailType, newDetail);
 }
 
 
@@ -144,4 +208,4 @@ async function banAccount(UID) {
     await fb_write('/bannedUsers/' + UID, true);
 }
 
-export { setName, deleteAccount, banAccount, logOut, redirectToIndex };
+export { changeDetail, deleteAccount, banAccount, logOut, redirectToIndex, validateDetail };

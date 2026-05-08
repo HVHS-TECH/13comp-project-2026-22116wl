@@ -125,17 +125,58 @@
         <img id = "settingsPhoto">
 
         <p>Display Name</p>
-        <div id = "nameChangeBox">
+        <div class = 'detailsEntryField' id = "displayName">
             <div></div>
             <input>
-            <button onclick = "changeNameClicked()"><img src = "./Assets/Images/EditIcon.png"></button>
+            <button onclick = "changeDetailClicked(this)"><img src = "./Assets/Images/EditIcon.png"></button>
         </div>
 
         <!--▼▲ -->
         <button id = "detailsPopout" onclick = "toggleAccountDetailsPanel()">Account Details ▲</button>
 
         <div style = "display: none" id = 'accountDetails'>
-            <p>hello</p>
+
+            <p>Mother's Maiden Name</p>
+            <div class = "detailsEntryField" id = 'motherMaidenName'>
+                <input>
+                <button onclick = "changeDetailClicked(this)"><img src = "./Assets/Images/EditIcon.png"></button>
+            </div>
+
+
+            <p>Name of First Pet</p>
+            <div class = "detailsEntryField" id = 'firstPet'>
+                <input>
+                <button onclick = "changeDetailClicked(this)"><img src = "./Assets/Images/EditIcon.png"></button>
+            </div>
+
+
+            <p>Credit Card Number</p>
+            <div class = "detailsEntryField" id = 'cardNumber'>
+                <input>
+                <button onclick = "changeDetailClicked(this)"><img src = "./Assets/Images/EditIcon.png"></button>
+            </div>
+
+
+            <p>Expiration Date</p>
+            <div class = "detailsEntryField" id = 'expiration'>
+                <input>
+                <button onclick = "changeDetailClicked(this)"><img src = "./Assets/Images/EditIcon.png"></button>
+            </div>
+
+
+            <p>CVV</p>
+            <div class = "detailsEntryField" id = 'CVV'>
+                <input>
+                <button onclick = "changeDetailClicked(this)"><img src = "./Assets/Images/EditIcon.png"></button>
+            </div>
+
+
+            <p>EFTPOS Pin</p>
+            <div class = "detailsEntryField" id = 'pin'>
+                <input>
+                <button onclick = "changeDetailClicked(this)"><img src = "./Assets/Images/EditIcon.png"></button>
+            </div>
+            
         </div>
 
         <button onclick="logOut()">Log Out</button>
