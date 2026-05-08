@@ -1,5 +1,5 @@
 import { fb_read, fb_write, getAuth, fb_valChanged } from '../fb.mjs';
-import { setName, banAccount, deleteAccount, redirectToIndex } from '../accountFunctions.mjs';
+import { changeDetail, banAccount, deleteAccount, redirectToIndex } from '../accountFunctions.mjs';
 
 
 async function isUserAdmin(UID) {
@@ -111,7 +111,7 @@ async function pageLoad() {
     document.getElementById('adminNameChangeBox').querySelector('input').addEventListener('focusout', (event) => {
         var UID = sessionStorage.getItem('focusedUser');
         var newName = document.getElementById('adminNameChangeBox').querySelector('input').value;
-        setName(UID, newName);
+        changeDetail(UID, newName, 'displayName');
     });
     
     

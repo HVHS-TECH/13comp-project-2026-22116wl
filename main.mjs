@@ -212,16 +212,12 @@ function toggleAccountDetailsPanel() {
 async function pageLoad() {
     // When player click off name change box, change the name
     document.querySelectorAll('.detailsEntryField').forEach(element => {
-
         element.querySelector('input').addEventListener('focusout', () => {
             let newName = element.querySelector('input').value;
             changeDetail(sessionStorage.getItem('UID'), newName, element.id);
         });
     });
-
-
-
-
+    
     
     // If player presses enter, unfocus the name change box (to change the name)
     document.onkeypress = function (event) {
