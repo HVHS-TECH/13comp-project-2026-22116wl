@@ -2,7 +2,7 @@
 import { fb_readSorted, fb_read, fb_write, fb_valChanged, getAuth } from "./fb.mjs";
 import { redirectToIndex } from "./accountFunctions.mjs";
 
-// define some global varuables
+// define some global variables
 var currentGame;
 
 
@@ -113,7 +113,7 @@ async function setUpGame() {
     const META_DATA = await import(`./Games/${currentGame}/gameMetaData.mjs`);
     
     document.getElementById('gameSpace').style.backgroundColor = META_DATA.bg;
-    
+
     document.querySelector("h1").innerHTML = META_DATA.gameName;
 
 
@@ -141,7 +141,7 @@ async function setUpGame() {
 async function pageLoad() {
     await redirectToIndex();
 
-    currentGame = sessionStorage.getItem('game');
+    currentGame = sessionStorage.getItem('currentGame');
     
     setUpGame();
 

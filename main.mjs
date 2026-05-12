@@ -60,6 +60,7 @@ async function toggleGameInfo(game) {
     }
 
     sessionStorage.setItem('currentGame', game);
+    console.log(sessionStorage.getItem('currentGame'));
     
     
     
