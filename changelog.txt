@@ -1,0 +1,4 @@
+1.1
+- Added information panel when clicking on a game, showing a description before clicking play
+- Fixed bug where links to games sometimes don't work
+- HTML Backgrounds for games can now be any colour, not just black and white binary

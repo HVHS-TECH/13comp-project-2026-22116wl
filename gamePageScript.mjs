@@ -112,13 +112,8 @@ async function setUpGame() {
     //import game metadata, such as game name in text 
     const META_DATA = await import(`./Games/${currentGame}/gameMetaData.mjs`);
     
-    // use game metadata to set background colour (of window)
-    if (META_DATA.bg == 1) {
-        document.getElementById('gameSpace').style.backgroundColor = "black";
-    } else {
-        document.getElementById('gameSpace').style.backgroundColor = "white";
-    }
-
+    document.getElementById('gameSpace').style.backgroundColor = META_DATA.bg;
+    
     document.querySelector("h1").innerHTML = META_DATA.gameName;
 
 

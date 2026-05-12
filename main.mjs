@@ -6,48 +6,71 @@ console.log('script connected');
 import { fb_authenticate, fb_read, fb_write, getAuth } from './fb.mjs';
 import { changeDetail, deleteAccount, logOut, validateDetail } from "./accountFunctions.mjs";
 
-
-// Function to toggle the account settings panel popout
-function toggleSettings() {
-    const panel = document.querySelector('.AccountSettings');
-
-    // true or false to determine whether or not we are showing or hiding the panle
-    // if the display is set to none then is hidden and we are showing
-    var goingOut = panel.style.display == "none"
+function panelPopOut(panel, direction, _display = "block", duration = 90, ) {
+    var goingOut = panel.style.display == "none";
     if (goingOut == true) {
-        panel.style.display = "block";
+        panel.style.display = _display;
     }
 
-
-    const DURATION = 90;
+    var width;
+    if (direction == "bottom" || direction == "top") {
+        width = panel.offsetHeight;
+    } else {
+        width = panel.offsetWidth;   
+    }
 
     var keyframes;
     if (goingOut == true) {
         keyframes = [
-            { right: "-" + panel.offsetWidth + "px" },
-            { right: "0px" }
+            { [direction]: "-" + width + "px" },
+            { [direction]: "0px" }
         ]
     } else {
         keyframes = [
-            { right: "0px" },
-            { right: "-" + panel.offsetWidth + "px" }
+            { [direction]: "0px" },
+            { [direction]: "-" + width + "px" }
         ]
     } 
 
     panel.animate(keyframes, {
-        duration: DURATION,
+        duration: duration,
         iterations: 1,
         fill: 'forwards'
-    })
+    });
 
     // if going in then hide panel after finishing the animation
     if (goingOut == false) {
         setTimeout(function() {
             panel.style.display = 'none';
-        }, DURATION);
+        }, duration);
     }
 }
 
+
+// Toggle the panel at the bottom of the screen that shows game information
+async function toggleGameInfo(game) {
+    var panel = document.getElementById('gameInfo');
+    var desc = panel.querySelector('#gameDescription');
+
+    var panelHidden = panel.style.display == 'none';
+
+    //Pop out the panel if it's hidden, or if the game is not changing
+    if ( (game == sessionStorage.getItem('currentGame') && !panelHidden) || panelHidden) {
+        panelPopOut(panel, 'bottom', 'flex', 90);
+    }
+
+    sessionStorage.setItem('currentGame', game);
+    
+    
+    
+    const META_DATA = await import(`./Games/${game}/gameMetaData.mjs`);
+
+
+    panel.querySelector('img').src = `./Games/${game}/Icon.png`;
+
+    desc.querySelector('h2').innerHTML = META_DATA.gameName;
+    desc.querySelector('p').innerHTML = META_DATA.description;
+}
 
 // Verify the user inputs on the registration page
 function verifyRegistration() {
@@ -217,7 +240,7 @@ async function pageLoad() {
             changeDetail(sessionStorage.getItem('UID'), newName, element.id);
         });
     });
-    
+
     
     // If player presses enter, unfocus the name change box (to change the name)
     document.onkeypress = function (event) {
@@ -230,20 +253,10 @@ async function pageLoad() {
 
     // add links to and configure each game on the home page
     document.querySelectorAll('.gameIcon').forEach(async (element) => {
-        element.addEventListener("click", () => {
-            sessionStorage.setItem('game', element.id);
-        });
-    
         element.querySelector("img").src = "./Games/" + element.id + "/Icon.png";
     
         const metaData = await import(`./Games/${element.id}/gameMetaData.mjs`);
-        element.querySelector(".gameName").innerHTML = metaData.gameName;
-    });
-
-    
-    document.querySelectorAll('.gameIcon').forEach(async (element) => {
-        console.log(element.parentElement);
-        element.parentElement.setAttribute("href", "./game.html");
+        element.querySelector("p").innerHTML = metaData.gameName;
     });
 
 
@@ -264,5 +277,5 @@ window.changeDetailClicked = changeDetailClicked;
 window.register = register;
 window.logOut = logOut;
 window.login = login;
-window.toggleSettings = toggleSettings;
-window.toggleAccountDetailsPanel = toggleAccountDetailsPanel;
+window.panelPopOut = panelPopOut;
+window.toggleGameInfo = toggleGameInfo;

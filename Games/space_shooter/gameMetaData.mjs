@@ -1,3 +1,4 @@
 const gameName = "Space Shooter";
-const bg = 1; //this is a binary for black and white margins on the page (0=white 1 = black)
-export { gameName, bg }
+const bg = "#010011"; //Colour of the background of the page
+const description = "How long can you defend your spaceship against the waves of oncoming aliens? Tactically use your three turrets to shoot them down and win!"
+export { gameName, bg, description }

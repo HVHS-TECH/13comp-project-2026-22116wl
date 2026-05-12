@@ -74,7 +74,7 @@
         </div>
         
         <h1>13 COMP Site</h1>
-        <button id='accountSettingsButton' onclick="toggleSettings()"><img src = "./Assets/Images/notLoggedIn.png"></button>
+        <button id='accountSettingsButton' onclick="panelPopOut(document.querySelector('.AccountSettings'), 'right')"><img src = "./Assets/Images/notLoggedIn.png"></button>
     </header>
     
     <div id = 'gamesSpace'>
@@ -82,27 +82,27 @@
             <!-- Class = 'gameIcon' -->
             <!-- ID = game script name -->
 
-            <a>
-                <div id = "space_shooter" class = 'gameIcon'>
+            <button onclick = "toggleGameInfo(this.id)" id = "space_shooter" class = "gameIcon">
+                <div>
                     <img>
-                    <p class = 'gameName'>Space Shooter</p>
+                    <p>Space Shooter</p>
                 </div>
-            </a>
+            </button>
 
 
-            <a>
-                <div id = "game_that_works" class = 'gameIcon'>
+            <button onclick = "toggleGameInfo(this.id)" id = "game_that_works" class = 'gameIcon'>
+                <div>
                     <img>
-                    <p class = 'gameName'>Game that Works</p>
+                    <p>Game that Works</p>
                 </div>
-            </a>
+            </button>
 
-            <a>
-                <div id = "guess_the_number" class = 'gameIcon'>
+            <button onclick = "toggleGameInfo(this.id)" id = "guess_the_number" class = 'gameIcon'>
+                <div>
                     <img>
-                    <p class = 'gameName'>Guess the Number</p>
+                    <p>Guess the Number</p>
                 </div>
-            </a>
+            </button>
 
             
 
@@ -116,6 +116,16 @@
             -->
 
         </div>
+    </div>
+
+
+    <div id = "gameInfo" style = "display: none;">
+        <div id = "gameDescription">
+            <h2>Space Shooter</h2>
+            <p></p>
+            <a href = "./game.html">Play!</button></a>
+        </div>
+        <img src = "./Games/space_shooter/Icon.png">
     </div>
 
     <div class = "AccountSettings" style = "display: none;">
@@ -176,7 +186,7 @@
                 <input>
                 <button onclick = "changeDetailClicked(this)"><img src = "./Assets/Images/EditIcon.png"></button>
             </div>
-            
+
         </div>
 
         <button onclick="logOut()">Log Out</button>

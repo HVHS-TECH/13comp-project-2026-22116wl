@@ -2,6 +2,26 @@ body {
 	font-family: "Helvetica";
 }
 
+button {
+	background-color: rgb(200,200,200);
+	
+	border: 2px solid black;
+	border-radius: 5px;
+}
+
+button:hover {
+	filter: brightness(90%);
+}
+
+button:active {	
+	filter: brightness(75%);
+}
+
+button:disabled {	
+	filter: brightness(120%);
+}
+
+
 #loginBlur {
 	position: fixed;
 	z-index: 11;
@@ -291,6 +311,9 @@ body {
 
 	transition: transform 0.1s ease;
 
+	background-color: transparent;
+
+	padding: 0px;
 	margin: 10px;
 }
 
@@ -315,6 +338,7 @@ body {
 	padding: 5px;
 	margin-top: 0px;
 	margin-bottom: 6px;
+	font-weight: 500;
 }
 
 a {
@@ -611,26 +635,6 @@ header #leftButtonSpace {
 	font-size: 12px;
 }
 
-button {
-	background-color: rgb(200,200,200);
-	
-	border: 2px solid black;
-	border-radius: 5px;
-}
-
-button:hover {
-	filter: brightness(90%);
-}
-
-button:active {	
-	filter: brightness(75%);
-}
-
-button:disabled {	
-	filter: brightness(120%);
-}
-
-
 #adminButton {
 	width: 80px;
 	height: 50px;
@@ -653,4 +657,69 @@ button:disabled {
 	margin: 0px;
 	font-weight: bold;
 	color: lightgray;
+}
+
+
+#gameInfo {
+	width: 100%;
+	height: 40%;
+	z-index: 2;
+	position: fixed;
+
+	transform-origin: 0% 100%;
+	bottom: 0px;
+
+	bottom: -380px;
+
+	background-color: rgb(198, 198, 198);
+	border-top: 4px solid rgb(54, 54, 54);
+}
+
+
+#gameDescription {
+	width: 100%;
+	padding: 25px;
+	background-color: rgb(215, 215, 215);
+}
+
+#gameDescription h2 {
+	font-size: 45px;
+	margin: 0px;
+}
+
+#gameDescription p {
+	margin-top: 30px;
+	font-size: 23px;
+	height: calc(100% - 165px);
+}
+
+#gameInfo img {
+	height: 100%;
+	width: auto;
+	aspect-ratio: 1/1;
+
+	border-left: 3px solid rgb(77, 77, 77);
+}
+
+
+#gameInfo a {
+	display: block;
+	background-color: rgb(33, 185, 33);
+	line-height: 50px;
+	text-align: center;
+	font-weight: bold;
+	color: rgb(255, 255, 255);
+	width: 130px;
+	height: 50px;
+
+	border: 3px solid black;
+	border-radius: 5px;
+}
+
+#gameInfo a:hover {
+	background-color: rgb(29, 165, 29);
+}
+
+#gameInfo a:active {
+	background-color: rgb(22, 127, 22);
 }

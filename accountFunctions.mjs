@@ -27,7 +27,7 @@ function validateDetail(detail, detailType) {
         }
 
         if (detail.length > 20) {
-            return 'Name cannot be less more than 20 characters';
+            return 'Name cannot be more than 20 characters';
         }
     }
 
