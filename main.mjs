@@ -18,19 +18,15 @@ function panelPopOut(panel, direction, _display = "block", duration = 90, ) {
     } else {
         width = panel.offsetWidth;   
     }
+    
 
-    var keyframes;
-    if (goingOut == true) {
-        keyframes = [
-            { [direction]: "-" + width + "px" },
-            { [direction]: "0px" }
-        ]
-    } else {
-        keyframes = [
-            { [direction]: "0px" },
-            { [direction]: "-" + width + "px" }
-        ]
-    } 
+    var keyframes = [
+        { [direction]: "-" + width + "px" },
+        { [direction]: "0px" }
+    ];
+
+    if (!goingOut) { keyframes = keyframes.reverse(); } 
+
 
     panel.animate(keyframes, {
         duration: duration,
@@ -60,8 +56,6 @@ async function toggleGameInfo(game) {
     }
 
     sessionStorage.setItem('currentGame', game);
-    console.log(sessionStorage.getItem('currentGame'));
-    
     
     
     const META_DATA = await import(`./Games/${game}/gameMetaData.mjs`);
@@ -221,6 +215,7 @@ async function isUserLoggedIn() {
 
 
 const PANEL = document.getElementById("accountDetails");
+
 function toggleAccountDetailsPanel() {
     if (PANEL.style.display == "none") {
         PANEL.style.display = 'block';
@@ -280,3 +275,4 @@ window.logOut = logOut;
 window.login = login;
 window.panelPopOut = panelPopOut;
 window.toggleGameInfo = toggleGameInfo;
+window.toggleAccountDetailsPanel = toggleAccountDetailsPanel;

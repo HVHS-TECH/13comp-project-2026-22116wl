@@ -114,21 +114,21 @@ button:disabled {
 }
 
 #fields {
-	overflow-y: auto;
 	max-height: 550px;
 	height: 50vh;
-
-	scrollbar-width: none;
-	-ms-overflow-style: none;
 }
 
 #fields div {
 	display: flex;
-	margin-top: 30px;
-	margin-bottom: 10px;
+	margin-bottom: min(3.3vh, 30px);
+
+	height: 7.2%;
 }
 
 
+#fields div * {
+	height: 100%;
+}
 
 
 #accountSettingsButton {
@@ -683,13 +683,15 @@ header #leftButtonSpace {
 }
 
 #gameDescription h2 {
-	font-size: 45px;
+	font-size: clamp(20px, 4vw, 50px);
 	margin: 0px;
 }
 
 #gameDescription p {
 	margin-top: 30px;
-	font-size: 23px;
+	
+	font-size: clamp(12px, 1.5vw, 22px);
+
 	height: calc(100% - 165px);
 }
 
@@ -722,4 +724,16 @@ header #leftButtonSpace {
 
 #gameInfo a:active {
 	background-color: rgb(22, 127, 22);
+}
+
+#gameInfo #downButton {
+	position: absolute;
+	top: -32px;
+	left: 20px;
+
+	border-radius: 7px 7px 0px 0px;
+
+	width: 100px;
+	height: 30px;
+
 }

@@ -114,13 +114,15 @@ async function leaveLobby(event) {
     
         for (let playeri in lobby.players) {
             if (lobby.players[playeri].UID == PLAYER_UID) {
-                fb_write("/Lobbies/guess_the_number/" + LOBBY_ID + "/status", 'waiting');
                 fb_write("/Lobbies/guess_the_number/" + LOBBY_ID + "/players/" + playeri, {
                     UID: "",
                     displayName: "",
                     pfp: "",
                     guess: 0
                 });
+                
+                resetLobby({detail: {LobbyID: LOBBY_ID}});
+                fb_write("/Lobbies/guess_the_number/" + LOBBY_ID + "/status", 'waiting');
             }
         }
     }, 600);

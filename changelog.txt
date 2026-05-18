@@ -5,3 +5,10 @@
 
 1.11
 - Fixed bug where games on the homepage didn't load the correct game when clicked
+
+1.2
+- Down arrow button added to hide game info panel when popped out
+- Added responsive design to the text in the game info menu, it collapses in size when you resize the window.
+- Fixed the big in which the non host player leaving the guess the number lobby mid game does not reset it for the next game.
+- Fixed the bug where the account details popout on the settings menu doesn't work
+- Registration fields now collapse smaller instead of turning into a scrolling frame
