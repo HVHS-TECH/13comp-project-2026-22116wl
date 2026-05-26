@@ -12,3 +12,7 @@
 - Fixed the big in which the non host player leaving the guess the number lobby mid game does not reset it for the next game.
 - Fixed the bug where the account details popout on the settings menu doesn't work
 - Registration fields now collapse smaller instead of turning into a scrolling frame
+
+1.21
+- Crown Position for GTN Winner adjusted for better fit
+- Secondary Close button added to account settings menu

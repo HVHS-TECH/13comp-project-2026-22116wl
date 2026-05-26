@@ -288,7 +288,7 @@ function Game() {
 
 // draw crown on winners pfp at win screen
 function drawCrown(winner) {
-    const CROWN_YPOS = cnv.h/5*1.6 - 210;
+    const CROWN_YPOS = cnv.h/5*1.6 - 190;
     const CROWN_WIDTH = 270;
     
     let crownXOffset = pfp_x_offset;
@@ -352,7 +352,6 @@ function MyTurn() {
     }, 1, "#888888", null, 40);
 
     drawButton(cnv.w/2, GUESS_BUTTON_HEIGHT + 120, 250, 80, "Submit Guess", () => { makeGuess(guess); }, 0, "#888888");
-    
 }
 
 // Either player is taking their turn to guess

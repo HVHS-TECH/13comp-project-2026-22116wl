@@ -92,8 +92,7 @@ function validateDetail(detail, detailType) {
 // UID = users who's name is being changed
 // name = user's new name
 async function changeDetail(UID, newDetail, detailType) {
-    console.log(detailType);
-    console.log(UID);
+
     var invalid = validateDetail(newDetail, detailType); //Returns true, or an error message string
     if (invalid != true) {
         alert(invalid);

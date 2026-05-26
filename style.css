@@ -153,6 +153,22 @@ button:disabled {
 	height: 100%;
 }
 
+#accountSettingCloseButton {
+	position: absolute;
+	margin-left: 15px;
+	margin-top: 15px;
+
+	width: 33px;
+	border: 2px solid black;
+	font-family: sans-serif;
+	font-size: 20px;
+	line-height: 15px;
+	padding: 0px;
+	padding-bottom: 3.5px;
+
+	height: 33px;
+}
+
 
 .AccountSettings {
 	transform-origin: 100% 0%;
