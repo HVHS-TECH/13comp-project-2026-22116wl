@@ -220,12 +220,12 @@ async function fb_readSorted(path, sortkey) {
 // Run a function whenevr a value changes in the DB
 // path = /path/to/value - the value it detects a change under
 // callback = function to run upon change
-async function fb_valChanged(path, callback, orderKey = null) {
+async function fb_valChanged(path, callback, orderKey = null, limit = 500) {
     var _query;
     if (orderKey == null) {
         _query = ref(fb_db, path);
     } else {
-        _query = query(ref(fb_db, path), orderByChild(orderKey), limitToLast(500));
+        _query = query(ref(fb_db, path), orderByChild(orderKey), limitToLast(limit));
     }
     
     onValue(_query, (snapshot) => {

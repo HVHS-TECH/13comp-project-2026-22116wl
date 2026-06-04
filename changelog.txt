@@ -14,5 +14,10 @@
 - Registration fields now collapse smaller instead of turning into a scrolling frame
 
 1.21
-- Crown Position for GTN Winner adjusted for better fit
+- Crown Position for GTN Winner adjusted for better fit, drop shadow added
 - Secondary Close button added to account settings menu
+
+1.3
+- GTN Winner screen layout redone, now shows mystery number
+- Rematch Requests added for GTN.
+- New spectator mode for GTN.

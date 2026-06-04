@@ -17,6 +17,8 @@ async function joinLobby(event) {
         await fb_write("/Lobbies/guess_the_number/" + PLAYER_UID, {
             mysteryNumber: 0,
             status: "waiting",
+            rematchRequest: false,
+
             guess_range: {
                 max: 100,
                 min: 0
@@ -79,16 +81,23 @@ async function joinLobby(event) {
 }
 
 
-
 async function resetLobby(event) {
     const LOBBY_ID = event.detail.LobbyID;
 
+    fb_write("/Lobbies/guess_the_number/" + LOBBY_ID + "/rematchRequest", false);
     fb_write("/Lobbies/guess_the_number/" + LOBBY_ID + "/status", 'notStarted');
     fb_write("/Lobbies/guess_the_number/" + LOBBY_ID + "/mysteryNumber", 0);
     fb_write("/Lobbies/guess_the_number/" + LOBBY_ID + "/guess_range", {
         max: 100,
         min: 0,
     });
+}
+
+
+async function requestRematch(event) {
+    const LOBBY_ID = event.detail.LobbyID;
+
+    fb_write("/Lobbies/guess_the_number/" + LOBBY_ID + "/rematchRequest", sessionStorage.getItem('UID'));
 }
 
 
@@ -211,4 +220,5 @@ window.addEventListener('leaveLobby', leaveLobby);
 window.addEventListener('makeGuess', submitGuess);
 window.addEventListener('startGame', startGame);
 window.addEventListener('resetLobby', resetLobby);
+window.addEventListener('requestRematch', requestRematch);
 window.addEventListener('win', win);

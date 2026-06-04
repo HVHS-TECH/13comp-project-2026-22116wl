@@ -6,6 +6,7 @@ var lobbyData = {}
 var lobbyID = "";
 
 var guess = 50;
+var spectator = false;
 
 
 // Var not const to future proof the ability to make the range potentially customisable
@@ -14,7 +15,7 @@ var min_guess = 1;
 
 let pfp_x_offset;
 
-var sceneChanging = false;
+var sceneChanging = false; // Click a button, this variable disables all buttons until the scene change has finished
 
 function preload() {
     DEFAULT_PFP = loadImage("Assets/Images/notLoggedIn.png");
@@ -195,6 +196,15 @@ function resetLobby() {
     }
 }
 
+function requestRematch() {
+    window.dispatchEvent(new CustomEvent('requestRematch', {
+        detail: { 
+            LobbyID: lobbyID,
+        }
+    }));
+}
+
+
 function MainLobby() {
     textStyle(NORMAL);
     textSize(70);
@@ -233,6 +243,7 @@ function NotStarted() {
         textAlign(CENTER, CENTER);
         text("Waiting for host to start the game", cnv.w/2, cnv.h/7*5);
     }
+
 }
 
 function Waiting() {
@@ -279,9 +290,17 @@ function Game() {
     }
 
 
+    if (spectator) {
+        fill("#000000");
+        textSize(20);
+        textStyle(BOLD);
+        text("Spectating Match..", 100, cnv.h-30, )
+    }
+
 
     textSize(50);
     textStyle(BOLD);
+    fill("#000000");
     text("vs", cnv.w/2, PFP_YPOS);
 }
 
@@ -313,13 +332,63 @@ function Won() {
 
     fill('#564d00');
     textSize(60);
-    text(lobbyData.players[winner].displayName + " Wins!", cnv.w/2, cnv.h/9*5.5);
-    
-    if (sessionStorage.getItem("UID") == lobbyID) {
-        drawButton(cnv.h/2, cnv.h/7*5, 350, 75, "Rematch", resetLobby, 0, "#999999");
+
+    if (lobbyData.players[winner].UID == sessionStorage.getItem('UID')) {
+        text("You Win!", cnv.w/2, cnv.h/9*5.5);
+    } else {
+        text(lobbyData.players[winner].displayName + " Wins!", cnv.w/2, cnv.h/9*5.5);        
     }
 
-    drawButton(cnv.w/2, cnv.h/7*5 + 100, 350, 75, "Leave Lobby", leaveLobby, 3, "#999999");
+
+    textSize(35);
+    fill('#363000');
+    text("The Number was " + String(lobbyData['mysteryNumber']) + "!", cnv.w/2, cnv.h/9*5.5 + 75);
+    
+    
+    
+    
+    if (!spectator) {
+        if (lobbyData.rematchRequest == false) {
+            drawButton(cnv.h/3, cnv.h/7*6, 300, 75, "Request Rematch", requestRematch, 0, "#999999");
+        } else {
+            drawButton(cnv.h/3, cnv.h/7*6, 300, 75, "Rematch Requested", () => {}, 0, "#6d6d6d");
+        }
+
+        drawButton(cnv.w/3 * 2, cnv.h/7*6, 300, 75, "Leave Lobby", leaveLobby, 3, "#999999");
+    } else {
+        drawButton(cnv.w/2, cnv.h/7*6, 300, 75, "Leave Lobby", leaveLobby, 3, "#999999");
+    }
+
+
+    // Someone has requested a rematch
+    if (lobbyData.rematchRequest != false) {
+        const UID = sessionStorage.getItem('UID'); 
+
+        if (lobbyData.rematchRequest != UID && spectator == false ) {
+            // The other player requested a rematch, and current player is not a spectator
+
+            fill("#e9e9e9");
+            stroke('#4d4d4d');
+            strokeWeight(3);
+            rect(cnv.w - 405, 30, 400, 150, 10);
+            noStroke();
+            var requesterName;
+            
+            for (let player in lobbyData.players) {
+                console.log(player);
+                if (lobbyData.players[player]['UID'] == lobbyData.rematchRequest) {
+                    requesterName = lobbyData.players[player].displayName;
+                }
+            }
+            
+            fill("#000000");
+            textSize(18);
+            text(requesterName + " Requested a Rematch", cnv.w - 205, 75);
+
+            drawButton(cnv.w - 205, 130, 130, 50, "Accept", resetLobby, 2, "#3daf3d");
+        }
+    }
+
 }
 
 
@@ -367,9 +436,10 @@ function PlayerTurn() {
     text(String(lobbyData["guess_range"].max) + " is too high", cnv.w/2, TEXT_HEIGHT);
 
 
-    //Find which player is currently taking their turn
     for (let playeri in lobbyData.players) {
+        //Find which player is currently taking their turn
         if (scene == (playeri + 'Turn') && lobbyData.players[playeri].UID == sessionStorage.getItem('UID')) {
+            //The player taking their turn is me
             MyTurn();
             return;
         }
@@ -388,37 +458,44 @@ function someoneHasWon() {
     }
 }
 
+// Scene of game has changed - Verious Functions that run on certain scenes loading in
 function sceneChanged(event) {
     console.log('scene changed');
 
     sceneChanging = false;
 
     const LOBBY_ID = event.detail.lobbyID;
-        if (LOBBY_ID == lobbyID) {
-            scene = event.detail.scene;
-            
-            if (someoneHasWon()) {
-                let winner = scene.replace("Won", "");
-                let winnerUID = lobbyData.players[winner].UID;
-                
-                //Add win to DB
-                let _win = 0;
-                let _loss = 0;
-
-                if (winnerUID == sessionStorage.getItem("UID")) {
-                    _win = 1;
-                } else {
-                    _loss = 1;
-                }
-                
-                window.dispatchEvent(new CustomEvent('scoreChanged', {
-                    detail: { 
-                        wins: _win,
-                        losses: _loss
-                    }
-                }));
-            }
+    if (LOBBY_ID == lobbyID) {
+        // The lobby i am in has changed
+        
+        scene = event.detail.scene;
+        
+        if (scene == "waiting" || scene == "notStarted") {
+            guess = 50;
         }
+
+        if (someoneHasWon()) {
+            let winner = scene.replace("Won", "");
+            let winnerUID = lobbyData.players[winner].UID;
+            
+            //Add win to DB
+            let _win = 0;
+            let _loss = 0;
+
+            if (winnerUID == sessionStorage.getItem("UID")) {
+                _win = 1;
+            } else {
+                _loss = 1;
+            }
+            
+            window.dispatchEvent(new CustomEvent('scoreChanged', {
+                detail: { 
+                    wins: _win,
+                    losses: _loss
+                }
+            }));
+        }
+    }
 }
 
 // Listeners to add and functions to run upon game loadup
@@ -437,9 +514,17 @@ function pageLoad() {
     window.addEventListener('lobbyChanged', function(event) {
         if (event.detail.lobbyID == lobbyID) {
             lobbyData = event.detail.lobby;
-        
-            // Find PFPs
+                
+            
+            spectator = true;
             for (let i in lobbyData.players) {
+                // If own id is either one of the players' ids, not a spectator
+                if (lobbyData.players[i].UID == sessionStorage.getItem('UID')) {
+                    spectator = false;
+                }
+            
+
+                // Find PFPs
                 const PFP = lobbyData.players[i].pfp
                 if (PFP != "") {
                     //
@@ -450,17 +535,7 @@ function pageLoad() {
                 }    
             }
 
-
-            //Verify players guess
-            for (let playeri in lobbyData.players) {
-                const PLAYER = lobbyData.players[playeri];
-                if (PLAYER.guess == lobbyData.mysteryNumber) {
-                    // Someone has won
-
-                    // Set Lobby status to won
-                    
-                }
-            }
+            console.log(spectator);
         }
     });
 
