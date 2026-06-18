@@ -205,6 +205,8 @@ async function startGame(event) {
 
     //Generate THE mystery number
     fb_write("Lobbies/guess_the_number/" + event.detail.lobbyID + "/mysteryNumber/", Math.floor(Math.random() * (max - min + 1)) + min);
+
+    fb_write("Lobbies/guess_the_number/" + event.detail.lobbyID + "/guess_range/", { max: 100, min: 0});
 }
 
 fb_valChanged('/Lobbies/guess_the_number', function(_lobbies) {

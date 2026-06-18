@@ -21,3 +21,7 @@
 - GTN Winner screen layout redone, now shows mystery number
 - Rematch Requests added for GTN.
 - New spectator mode for GTN.
+
+1.31
+- Redirection Bug Fix
+- Bug fixed in which lobby doesn't fully reset if the user leaves after the host has started but before it loads

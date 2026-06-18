@@ -97,7 +97,7 @@ async function pageLoad() {
         if (AUTH.currentUser == null || await isUserAdmin(AUTH.currentUser.uid) != true) {
             alert('YOU ARE NOT AN ADMIN GET OUT');
             console.log('return');
-            window.location.href = "/index.html";
+            window.location.href = "../index.html";
         }
 
 
