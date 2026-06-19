@@ -303,7 +303,7 @@ body {
 	margin-left: auto;
 	margin-right: auto;
 	padding-top: 30px;
-	height: calc(100vh - 112px);
+	height: calc(100vh - 142px);
 	width: 100%;
 
 	display: block;
@@ -752,4 +752,48 @@ header #leftButtonSpace {
 	width: 100px;
 	height: 30px;
 
+}
+
+#creditsLink {
+	color: rgb(200, 200, 200);
+	font-size: 10;
+	margin: 5px;
+	margin-left: 15px;
+}
+
+#creditsLink:hover {
+	text-decoration: underline;
+}
+
+
+.AssetCredit {
+	width: 70vw;
+	height: 180px;
+	display: flex;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 20px;
+
+	border: 2px solid black;
+}
+
+.AssetCredit a {
+	width: 50%;
+	text-align: center;
+	font-size: 30;
+	color: rgb(74, 61, 255);
+	text-decoration: underline;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+
+.AssetCredit a:hover {
+	color: rgb(48, 39, 163);
+}
+
+.AssetCredit img {
+	height: 100%;
+	width: auto;
+	margin-left: auto;
+	display: block;
 }
