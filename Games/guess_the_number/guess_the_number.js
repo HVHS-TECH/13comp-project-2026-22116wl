@@ -23,7 +23,8 @@ function preload() {
 }
 
 function setup() {
-    cnv = new Canvas("1:1");
+    cnv = new Canvas(950, 950, 'MAXED');
+    
     pfp_x_offset = cnv.w/7*1.5;
     scene = "MainLobby";
 }

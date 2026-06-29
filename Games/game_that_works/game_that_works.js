@@ -25,7 +25,7 @@ function preload() {
 
 
 function setup() {
-    cnv = new Canvas("1:1");
+    cnv = new Canvas(1000, 1000, "MAXED");
     player = new Sprite(cnv.hw, cnv.hh, 100, 100, "k");  
     player.color = 'cyan';
 

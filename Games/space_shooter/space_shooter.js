@@ -31,7 +31,8 @@ const WAVE_DATA_DICTIONARY = [
 ]
 
 function setup() {
-    cnv = new Canvas('5:7');
+    //5:7 ratio
+    cnv = new Canvas(785, 1100, "MAXED");
     
     world.gravity = 0;
     guns = new Group();

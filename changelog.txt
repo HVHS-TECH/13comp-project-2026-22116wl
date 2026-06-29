@@ -27,3 +27,6 @@
 - Bug fixed in which lobby doesn't fully reset if the user leaves after the host has started but before it loads
 - Asset Credits Page Added
 
+1.32
+- All credits added under asset credits
+- P5 canvas now has consistent scaling
