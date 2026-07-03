@@ -12,13 +12,6 @@ import { initializeApp }        from "https://www.gstatic.com/firebasejs/9.6.1/f
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getDatabase, runTransaction, set, get, ref, update, query, orderByChild, push, limitToFirst, limitToLast, onChildChanged, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-    
-// fb_initialise()
-// Called by html INITIALISE button
-// initialise
-// Input:  n/a
-// Return: n/a
-
 var fb_db;
 
 function fb_initialise() {
@@ -160,8 +153,6 @@ async function fb_read(path) {
             resolve(null);
         });
     });
-
-
 }
 
 function fb_update(path, data) {

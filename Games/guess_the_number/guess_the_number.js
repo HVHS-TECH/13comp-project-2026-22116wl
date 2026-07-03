@@ -224,7 +224,13 @@ function MainLobby() {
         // a permanent placeholder is needed under /Lobbies/[game] as firebase cannot store an empty table
         if (lobbyUID == "placeholder") { continue; }
         
-        drawButton(270, 150+((i+1)*110), 450, 80, lobby.players.player1.displayName + "'s Lobby", () => {
+
+        var players = 1;
+        if (lobby.players.player2.UID != "") {
+            players = 2;
+        }
+
+        drawButton(320, 150+((i+1)*110), 550, 80, lobby.players.player1.displayName + "'s Lobby - " + players + "/2", () => {
             joinLobby(lobbyUID);
         }, 0, "#111111", "#9d1d1d");
 
